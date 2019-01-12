@@ -9,6 +9,7 @@ import TransferToken from './components/TransferToken'
 import TokenAllowance from './components/TokenAllowance'
 import ApproveToken from './components/ApproveToken'
 import DepositToken from './components/DepositToken'
+import CreateMember from './components/CreateMember'
 
 class Home extends Component {
   render() {
@@ -36,20 +37,25 @@ class Home extends Component {
 
           <br /><br />
           <div className="pure-u-1-1">
-            {/* Needs to replace hard coded value with the actual RFAI Smart Contract Address */}
-            <TokenAllowance tknSpender="0xcc8b8a9a37f1710fc5db77a3797021cf1fe98f54" />
+            <TokenAllowance />
           </div>
 
           <br /><br />
           <div className="pure-u-1-1">
-            {/* Needs to replace hard coded value with the actual RFAI Smart Contract Address */}
-            <ApproveToken tknSpender="0xcc8b8a9a37f1710fc5db77a3797021cf1fe98f54" />
+            <ApproveToken />
           </div>
           
           <br /><br />
           <div className="pure-u-1-1">
             {/* Needs to replace hard coded value with the actual RFAI Smart Contract Address */}
-            <DepositToken tknSpender="0xcc8b8a9a37f1710fc5db77a3797021cf1fe98f54" tknBalance="100000000000000000" allowanceBalance="1000000000"/>
+            <DepositToken tknBalance="100000000000000000" allowanceBalance="1000000000"/>
+          </div>
+
+          
+          <br /><br />
+          <div className="pure-u-1-1">
+            <h2>Create Member</h2>
+            <CreateMember />
           </div>
 
           <h1>Following are the Hardcoded components</h1>

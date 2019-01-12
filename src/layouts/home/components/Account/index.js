@@ -20,6 +20,9 @@ class Account extends Component {
 
     this.handleInputChange = this.handleInputChange.bind(this)
 
+    // Get the Data Key
+    this.dataKey = this.contracts.SingularityNetToken.methods.balanceOf.cacheCall(this.props.accounts[0]);
+
   }
 
   handleInputChange(event) {
@@ -34,8 +37,14 @@ class Account extends Component {
   }
 
   render() {
-    
-    var tokenBalance = this.fromWei(this.contracts.SingularityNetToken.methods["balanceOf"].cacheCall(this.props.accounts[0]));
+
+    var tokenBalance = 0;
+    if(this.dataKey in this.props.SingularityNetToken.balanceOf) {
+
+      tokenBalance = this.props.SingularityNetToken.balanceOf[this.dataKey].value
+
+     }
+
     return (
       <div>
         <Paper style={styles} elevation={5} >

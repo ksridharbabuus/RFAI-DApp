@@ -18,6 +18,11 @@ class TokenAllowance extends Component {
 
     this.contracts = context.drizzle.contracts
 
+    // this.props.tknSpender
+    this.state = {
+      spenderAddress: this.contracts.ServiceRequest.address
+    }
+
   }
 
   fromWei(weiValue) {
@@ -29,14 +34,14 @@ class TokenAllowance extends Component {
 
   render() {
     
-    var allowanceBalance = this.fromWei(this.contracts.SingularityNetToken.methods["allowance"].cacheCall(this.props.accounts[0], this.props.tknSpender));
+    var allowanceBalance = this.fromWei(this.contracts.SingularityNetToken.methods["allowance"].cacheCall(this.props.accounts[0], this.state.spenderAddress));
     return (
       <div>
         <Paper style={styles} elevation={5} >
-        <h2>Token Allowances for the contract address {this.props.tknSpender}</h2>
+        <h2>Token Allowances for the contract address {this.state.spenderAddress}</h2>
         <p>
           <strong>Allowance Balance: </strong> 
-          <ContractData contract="SingularityNetToken" method="allowance" methodArgs={[this.props.accounts[0], this.props.tknSpender]}/> 
+          <ContractData contract="SingularityNetToken" method="allowance" methodArgs={[this.props.accounts[0], this.state.spenderAddress]}/> 
           {/* this.props.tknBalance */} AGI
         </p>
         <p>Converted Allowance Balance {allowanceBalance}</p>

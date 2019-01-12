@@ -3,16 +3,6 @@ import SimpleStorage from './../build/contracts/SimpleStorage.json'
 import TutorialToken from './../build/contracts/TutorialToken.json'
 import SingularityNetToken from './../build/contracts/SingularityNetToken.json'
 import ServiceRequest from './../build/contracts/ServiceRequest.json'
-//import web3 from './util/web3/getWeb3'
-/*
-let Contract = require("truffle-contract");
-let TokenAbi = require("singularitynet-token-contracts/abi/SingularityNetToken.json");
-let TokenNetworks = require("singularitynet-token-contracts/networks/SingularityNetToken.json");
-let TokenBytecode = require("singularitynet-token-contracts/bytecode/SingularityNetToken.json");
-let Token = Contract({contractName: "SingularityNetToken", abi: TokenAbi, networks: TokenNetworks, bytecode: TokenBytecode});
-
-let SingularityNetTokenAddress = '0x5dce7110a8cb2718a1d96fb8be8915fdf22786e5';
-*/
 
 const drizzleOptions = {
   web3: {
@@ -27,42 +17,17 @@ const drizzleOptions = {
     SimpleStorage,
     TutorialToken,
     SingularityNetToken,
-    ServiceRequest/*, 
-    {
-      contractName: 'SingularityNetToken',
-      web3Contract: new web3.eth.Contract(TokenAbi, SingularityNetTokenAddress, {data: TokenBytecode }) // An instance of a Web3 contract
-    }*/
+    ServiceRequest
   ],
   events: {
     SimpleStorage: ['StorageSet'],
-    AddFoundationMember: ['AddFoundationMember'], 
-    CreateRequest: ['CreateRequest'], 
-    ExtendRequest : ['ExtendRequest'], 
-    ApproveRequest: ['ApproveRequest'], 
-    FundRequest: ['FundRequest'], 
-    AddSolutionRequest: ['AddSolutionRequest'], 
-    VoteRequest: ['VoteRequest'], 
-    ClaimRequest: ['ClaimRequest'], 
-    CloseRequest: ['CloseRequest'], 
-    RejectRequest: ['RejectRequest']
+    ServiceRequest: ['AddFoundationMember', 'CreateRequest', 'ExtendRequest', 'ApproveRequest', 'FundRequest', 'AddSolutionRequest',  'VoteRequest', 'ClaimRequest', 'CloseRequest', 'RejectRequest']
   },
   polls: {
-    accounts: 1500
-  }
+    accounts: 1500//,
+    //blocks: 1000
+  }//,
+  //syncAlways: ture
 }
-
-/*
-var contractConfig = {
-  contractName: "SingularityNetToken",
-  web3Contract: new web3.eth.Contract(TokenAbi, SingularityNetTokenAddress, {data: TokenBytecode })
-}
-var events = ['Mint']
-
-// Using an action
-//dispatch({type: 'ADD_CONTRACT', drizzle, contractConfig, events, web3})
-
-// Or using the Drizzle context object
-this.context.drizzle.addContract(contractConfig, events)
-*/
 
 export default drizzleOptions

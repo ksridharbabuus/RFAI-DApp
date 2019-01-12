@@ -37,12 +37,14 @@ class ApproveToken extends Component {
     this.handleApproveButton = this.handleApproveButton.bind(this)
     this.setTXParamValue = this.setTXParamValue.bind(this)
 
+    // this.props.tknSpender
     this.state = {
       dialogOpen: false,
-      spenderAddress: this.props.tknSpender,
+      spenderAddress: this.contracts.ServiceRequest.address,
       approveAmount: '',
       alertText: ''
     }
+
   }
 
   componentDidMount() {
@@ -77,7 +79,7 @@ class ApproveToken extends Component {
     var amountBN = new BN(this.state.approveAmount)
 
     if(amountBN.gt(0)) {
-      this.contracts.SingularityNetToken.methods["approve"].cacheSend(this.props.tknSpender, this.state.approveAmount, {from: this.props.accounts[0]})
+      this.contracts.SingularityNetToken.methods["approve"].cacheSend(this.state.spenderAddress, this.state.approveAmount, {from: this.props.accounts[0]})
     } else {
       this.setState({ alertText: 'Oops! Something went wrong. Try checking your transaction details.'})
       this.handleDialogOpen()

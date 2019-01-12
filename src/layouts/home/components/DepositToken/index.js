@@ -37,9 +37,10 @@ class DepositToken extends Component {
     this.handleDepositButton = this.handleDepositButton.bind(this)
     this.setTXParamValue = this.setTXParamValue.bind(this)
 
+    // this.props.tknSpender
     this.state = {
       dialogOpen: false,
-      spenderAddress: this.props.tknSpender,
+      spenderAddress: this.contracts.ServiceRequest.address,
       depositAmount: '',
       alertText: ''
     }
