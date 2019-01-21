@@ -20,9 +20,37 @@ class Account extends Component {
 
     this.handleInputChange = this.handleInputChange.bind(this)
 
-    // Get the Data Key
-    this.dataKey = this.contracts.SingularityNetToken.methods.balanceOf.cacheCall(this.props.accounts[0]);
+    this.state = {
+      dataKeyTokenBalance: null,
+      tknBalance: 0
+    }
 
+    // Get the Data Key
+    //this.dataKey = this.contracts.SingularityNetToken.methods.balanceOf.cacheCall(this.props.accounts[0]);
+
+  }
+
+  componentDidMount() {
+    // Get the Data Key
+    const dataKeyTokenBalance = this.contracts.SingularityNetToken.methods.balanceOf.cacheCall(this.props.accounts[0]);
+
+    this.setState({dataKeyTokenBalance})
+    this.setTokenBalance(this.props.SingularityNetToken)
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.SingularityNetToken !== prevProps.SingularityNetToken) {
+      this.setState({ defaultState: false })
+        this.setTokenBalance(this.props.SingularityNetToken)
+    }
+  }
+
+  setTokenBalance(contract) {
+    if (contract.balanceOf[this.state.dataKeyTokenBalance] !== undefined && this.state.dataKeyTokenBalance !== null) {
+      this.setState({
+        tokenBalance: contract.balanceOf[this.state.dataKeyTokenBalance].value
+      })
+    }
   }
 
   handleInputChange(event) {
@@ -38,13 +66,14 @@ class Account extends Component {
 
   render() {
 
+    /*
     var tokenBalance = 0;
     if(this.dataKey in this.props.SingularityNetToken.balanceOf) {
 
       tokenBalance = this.props.SingularityNetToken.balanceOf[this.dataKey].value
 
      }
-
+     */
     return (
       <div>
         <Paper style={styles} elevation={5} >
@@ -55,7 +84,7 @@ class Account extends Component {
           <ContractData contract="SingularityNetToken" units="8" method="balanceOf" methodArgs={[this.props.accounts[0]]}/> 
           {/* this.props.tknBalance */} AGI
         </p>
-        <p>Converted Token Balance {tokenBalance}</p>
+        <p>Converted Token Balance {this.state.tokenBalance}</p>
 
         <p>
           <strong>Singularity Net Token Balance in the Escrow RFAI Contract: </strong> 
@@ -80,8 +109,6 @@ Account.contextTypes = {
 const mapStateToProps = state => {
   return {
     accounts: state.accounts,
-    SimpleStorage: state.contracts.SimpleStorage,
-    TutorialToken: state.contracts.TutorialToken,
     SingularityNetToken: state.contracts.SingularityNetToken,
     ServiceRequest: state.contracts.ServiceRequest,
     drizzleStatus: state.drizzleStatus,

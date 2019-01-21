@@ -1,6 +1,3 @@
-import ComplexStorage from './../build/contracts/ComplexStorage.json'
-import SimpleStorage from './../build/contracts/SimpleStorage.json'
-import TutorialToken from './../build/contracts/TutorialToken.json'
 import SingularityNetToken from './../build/contracts/SingularityNetToken.json'
 import ServiceRequest from './../build/contracts/ServiceRequest.json'
 
@@ -13,14 +10,10 @@ const drizzleOptions = {
     }
   },
   contracts: [
-    ComplexStorage,
-    SimpleStorage,
-    TutorialToken,
     SingularityNetToken,
     ServiceRequest
   ],
   events: {
-    SimpleStorage: ['StorageSet'],
     ServiceRequest: ['AddFoundationMember', 'CreateRequest', 'ExtendRequest', 'ApproveRequest', 'FundRequest', 'AddSolutionRequest',  'VoteRequest', 'ClaimRequest', 'CloseRequest', 'RejectRequest']
   },
   polls: {

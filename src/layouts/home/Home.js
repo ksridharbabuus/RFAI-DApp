@@ -10,6 +10,8 @@ import TokenAllowance from './components/TokenAllowance'
 import ApproveToken from './components/ApproveToken'
 import DepositToken from './components/DepositToken'
 import CreateMember from './components/CreateMember'
+import ContractConfig from './components/ContractConfig'
+import CreateRequest from './components/CreateRequest'
 
 class Home extends Component {
   render() {
@@ -20,34 +22,39 @@ class Home extends Component {
             <img src={logo} alt="drizzle-logo" />
             <h1>Network</h1>
             <p><Network /></p>
+            { /*
             <h1>Drizzle Examples</h1>
             <p>Examples of how to get started with Drizzle in various situations.</p>
-
+            */ }
             <br/><br/>
           </div>
 
           <div className="pure-u-1-1">
+            <h2>Account Details</h2>
             <Account tknBalance="0" />
           </div>
           <br/><br/>
 
           <div className="pure-u-1-1">
+            <h2>Transfer Token</h2>
             <TransferToken tknBalance="100000000000000000" />
           </div>
 
           <br /><br />
           <div className="pure-u-1-1">
+            <h2>Token Allowance</h2>
             <TokenAllowance />
           </div>
 
           <br /><br />
           <div className="pure-u-1-1">
+            <h2>Approve Token</h2>
             <ApproveToken />
           </div>
           
           <br /><br />
           <div className="pure-u-1-1">
-            {/* Needs to replace hard coded value with the actual RFAI Smart Contract Address */}
+            <h2>Deposit Token</h2>
             <DepositToken tknBalance="100000000000000000" allowanceBalance="1000000000"/>
           </div>
 
@@ -58,8 +65,22 @@ class Home extends Component {
             <CreateMember />
           </div>
 
-          <h1>Following are the Hardcoded components</h1>
 
+          <br /><br />
+          <div className="pure-u-1-1">
+            <h2>Contract Configurations</h2>
+            <ContractConfig />
+          </div>
+
+          <br /><br />
+          <div className="pure-u-1-1">
+            <h2>Create Request</h2>
+            <CreateRequest />
+          </div>
+          
+          { /*
+          <h1>Following are the Hardcoded components</h1>
+          
           <div className="pure-u-1-1">
             <h2>Active Account</h2>
             <AccountData accountIndex="0" units="ether" precision="3" />
@@ -135,7 +156,7 @@ class Home extends Component {
 
 
           </div>
-
+          */ }
         </div>
       </main>
     )

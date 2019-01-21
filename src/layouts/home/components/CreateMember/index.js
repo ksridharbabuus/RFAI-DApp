@@ -42,7 +42,7 @@ class CreateMember extends Component {
     this.state = {
       dialogOpen: false,
       memberAddress: '',
-      memberRole: '',
+      memberRole: 0,
       memberStatus: true,
       alertText: ''
     }
@@ -54,17 +54,17 @@ class CreateMember extends Component {
 
   handleMemberInputChange(event) {
     this.setState({ [event.target.name]: event.target.value })
-    console.log("handleMemberInputChange: " + this.state.memberAddress)
+    //console.log("handleMemberInputChange: " + this.state.memberAddress)
   }
 
   handleMemberRoleChange(event) {
     this.setState({ [event.target.name]: event.target.value })
-    console.log("handleMemberRoleChange: " + this.state.memberRole)
+    //console.log("handleMemberRoleChange: " + this.state.memberRole)
   }
 
   handleMemberStatusChange(event) {
     this.setState({ [event.target.name]: event.target.checked })
-    console.log("handleMemberStatusChange: " + this.state.memberStatus)
+    //console.log("handleMemberStatusChange: " + this.state.memberStatus)
   }
 
   handleDialogOpen() {
@@ -79,9 +79,21 @@ class CreateMember extends Component {
 
     if(this.context.drizzle.web3.utils.isAddress(this.state.memberAddress) ) {
 
-      console.log("memberAddress: " + this.state.memberAddress)
-      console.log("memberRole: " + this.state.memberRole)
-      console.log("memberStatus: " + this.state.memberStatus)
+      //console.log("memberAddress: " + this.state.memberAddress)
+      //console.log("memberRole: " + this.state.memberRole)
+      //console.log("memberStatus: " + this.state.memberStatus)
+
+
+      const stackId = this.contracts.ServiceRequest.methods["addOrUpdateFoundationMembers"].cacheSend(this.state.memberAddress, this.state.memberRole, this.state.memberStatus, {from: this.props.accounts[0]})
+      console.log("stackId : " + stackId);
+      console.log("Tx Hash0 : " + this.props.transactionStack[stackId]);
+      if (this.props.transactionStack[stackId]) {
+        const txHash = this.props.trasnactionStack[stackId]
+        console.log("Tx Hash : " + txHash);
+        console.log("Tx Status : " + this.props.transactions[txHash].status);
+      }
+
+      /*
       var state = this.context.drizzle.store.getState();
 
       if(state.drizzleStatus.initialized) {
@@ -92,7 +104,7 @@ class CreateMember extends Component {
           console.log("Tx Hash : " + txHash);
           console.log("Tx Status : " + state.transactions[txHash].status);
         }
-      }
+      }*/
 
     } else if (!this.context.drizzle.web3.utils.isAddress(this.state.memberAddress)) {
       this.setState({ alertText: `Oops! The member address isn't a correct ethereum address.`})
@@ -110,8 +122,8 @@ class CreateMember extends Component {
       <div>
         <Paper style={styles} elevation={5}>
 
-        <ContractData contract="ServiceRequest" method="foundationMembers" methodArgs={['0xe2ef03683d232e93a3aef26599cdf7996d79167f']}/>
-        <ContractData contract="ServiceRequest" method="foundationMembers" methodArgs={['0x3026307c01a78711665ec2e0feb3b6811cdf85ec']}/>
+        <ContractData contract="ServiceRequest" method="foundationMembers" methodArgs={['0x1df62f291b2e969fb0849d99d9ce41e2f137006e']}/>
+        <ContractData contract="ServiceRequest" method="foundationMembers" methodArgs={['0xaca94ef8bd5ffee41947b4585a84bda5a3d3da6e']}/>
 
           <p><strong>Add Foundation Member: </strong></p>
           <form className="pure-form pure-form-stacked">
@@ -144,8 +156,6 @@ CreateMember.contextTypes = {
 const mapStateToProps = state => {
   return {
     accounts: state.accounts,
-    SimpleStorage: state.contracts.SimpleStorage,
-    TutorialToken: state.contracts.TutorialToken,
     SingularityNetToken: state.contracts.SingularityNetToken,
     ServiceRequest: state.contracts.ServiceRequest,
     drizzleStatus: state.drizzleStatus,

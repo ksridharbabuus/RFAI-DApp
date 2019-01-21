@@ -20,9 +20,34 @@ class TokenAllowance extends Component {
 
     // this.props.tknSpender
     this.state = {
-      spenderAddress: this.contracts.ServiceRequest.address
+      spenderAddress: this.contracts.ServiceRequest.address,
+      dataKeyTokenAllowance: null,
+      tknAllowance: 0
     }
+    
+  }
 
+  componentDidMount() {
+    // Get the Data Key
+    const dataKeyTokenAllowance = this.contracts.SingularityNetToken.methods["allowance"].cacheCall(this.props.accounts[0], this.state.spenderAddress);
+
+    this.setState({dataKeyTokenAllowance})
+    this.setTokenAllowance(this.props.SingularityNetToken)
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.SingularityNetToken !== prevProps.SingularityNetToken) {
+      this.setState({ defaultState: false })
+        this.setTokenAllowance(this.props.SingularityNetToken)
+    }
+  }
+
+  setTokenAllowance(contract) {
+    if (contract.allowance[this.state.dataKeyTokenAllowance] !== undefined && this.state.dataKeyTokenAllowance !== null) {
+      this.setState({
+        tknAllowance: contract.allowance[this.state.dataKeyTokenAllowance].value
+      })
+    }
   }
 
   fromWei(weiValue) {
@@ -44,7 +69,7 @@ class TokenAllowance extends Component {
           <ContractData contract="SingularityNetToken" method="allowance" methodArgs={[this.props.accounts[0], this.state.spenderAddress]}/> 
           {/* this.props.tknBalance */} AGI
         </p>
-        <p>Converted Allowance Balance {allowanceBalance}</p>
+        <p>Converted Allowance Balance {this.state.tknAllowance}</p>
         <br/>
       </Paper>
       </div>
@@ -62,8 +87,6 @@ TokenAllowance.contextTypes = {
 const mapStateToProps = state => {
   return {
     accounts: state.accounts,
-    SimpleStorage: state.contracts.SimpleStorage,
-    TutorialToken: state.contracts.TutorialToken,
     SingularityNetToken: state.contracts.SingularityNetToken,
     ServiceRequest: state.contracts.ServiceRequest,
     drizzleStatus: state.drizzleStatus,
