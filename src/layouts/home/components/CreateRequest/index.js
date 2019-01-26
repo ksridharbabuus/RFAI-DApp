@@ -109,13 +109,13 @@ class CreateRequest extends Component {
       if (this.props.transactionStack[stackId]) {
         const txHash = this.props.trasnactionStack[stackId]
       }
-    } else if (this.state.value == 0 || this.state.value >= this.state.tokenBalance) {
+    } else if (this.state.value === 0 || this.state.value >= this.state.tokenBalance) {
       this.setState({ alertText: `Oops! The you dont have enough token balance.`})
       this.handleDialogOpen()
-    } else if (this.state.expiration == 0) {
+    } else if (this.state.expiration === 0) {
       this.setState({ alertText: `Oops! Expiration should be great than current blocknumber.`})
       this.handleDialogOpen()  
-    }else if (this.state.documentURI.length == 0) {
+    }else if (this.state.documentURI.length === 0) {
       this.setState({ alertText: `Oops! It is invalid document URI.`})
       this.handleDialogOpen()  
     } else {

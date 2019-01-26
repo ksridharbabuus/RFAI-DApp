@@ -461,5 +461,21 @@ contract ServiceRequest {
         
         return true;
     }
-    
+
+
+    // Getters
+    function getFoundationMemberKeys() public view returns (address[]) {
+        return memberKeys;
+    }
+
+    function getStakeMembers(uint256 requestId) public view returns (address[]) {
+        Request memory req = requests[requestId];
+        return req.stakeMembers;
+    }
+
+    function getSolutionSubmitters(uint256 requestId) public view returns (address[]) {
+        Request memory req = requests[requestId];
+        return req.submitters;
+    }
+  
 }
