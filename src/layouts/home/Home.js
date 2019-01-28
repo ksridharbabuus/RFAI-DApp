@@ -36,32 +36,36 @@ class Home extends Component {
 
     this.state = {
       showLandingPage: true,
+      showViewPage: false,
       readonly: true
     }
 
   }
 
   handleHomeButton() {
-    this.setState({ showLandingPage: true })
+    this.setState({ showLandingPage: true, showViewPage: false })
   }
 
   handleViewRequest() {
-    this.setState({ showLandingPage: false })
+    this.setState({ showLandingPage: false, showViewPage: true })
   }
 
   render() {
     // RequestStatus { 0=Open, 1=Approved, 2=Rejected, 3=Completed, 4=Closed }
+    // className="container"
+    // (this.state.showLandingPage ? <LandingPage handler={this.handleViewRequest}/> :  <RequestsTab />)
+
+    // <div><RequestListV2 compRequestStatus="0"/> <br/><br/><br/><br/><br/><br/><br/> <RequestList /></div>
+    // <RequestsTab />
+
     return (
-      <main className="container">
+      <main >
+
         {/* Header Design Goes here - For now keeping only the header home button */}
         <a href="#" onClick={this.handleHomeButton}>Home Icon Place Holder</a><br/>
         <a href="#" onClick={this.handleViewRequest}>Request List Page Place Holder</a><br/>
-
-        {
-          // <div><RequestListV2 compRequestStatus="0"/> <br/><br/><br/><br/><br/><br/><br/> <RequestList /></div>
-          // <RequestsTab />
-          (this.state.showLandingPage ? <LandingPage /> :  <RequestsTab />)
-        }
+        <LandingPage handlerViewPage={this.handleViewRequest}/>
+        {this.state.showViewPage === true && <div class="main-content"><RequestsTab /></div>}
 
       </main>
     )

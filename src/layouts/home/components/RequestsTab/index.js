@@ -64,9 +64,9 @@ class RequestsTab extends Component {
     const selectedTab = this.state.selectedTab;
     
     return (
-
-      <div styles={rootStyles}>
-        <AppBar position="static">
+      <div class="main-content">
+      <div class="main">
+        <AppBar position="static" color="default">
           <Tabs value={selectedTab} onChange={this.handleChange}>
             <Tab label="Open " />
             <Tab label="Approved " />
@@ -75,13 +75,13 @@ class RequestsTab extends Component {
             <Tab label="Expired " />
           </Tabs>
         </AppBar>
-        {selectedTab === 0 && <Typography component="div" style={{ padding: 8 * 3 }}>Open Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
-        {selectedTab === 1 && <Typography component="div" style={{ padding: 8 * 3 }}>Approved Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
-        {selectedTab === 2 && <Typography component="div" style={{ padding: 8 * 3 }}>Rejected Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
-        {selectedTab === 3 && <Typography component="div" style={{ padding: 8 * 3 }}>Closed Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
-        {selectedTab === 4 && <Typography component="div" style={{ padding: 8 * 3 }}>Expired Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
+        {selectedTab === 0 && <Typography component="div" >Open Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
+        {selectedTab === 1 && <Typography component="div" >Approved Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
+        {selectedTab === 2 && <Typography component="div" >Rejected Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
+        {selectedTab === 3 && <Typography component="div" >Closed Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
+        {selectedTab === 4 && <Typography component="div" >Expired Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
       </div>
-
+      </div>
     )
   }
 }

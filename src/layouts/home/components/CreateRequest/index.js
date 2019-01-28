@@ -56,16 +56,12 @@ class CreateRequest extends Component {
     // Get the Data Key
     const dataKeyTokenBalance = this.contracts.ServiceRequest.methods.balances.cacheCall(this.props.accounts[0]);
 
-    for(var i=0;i<3;i++) {
-      const dataKeyRequests = this.contracts.ServiceRequest.methods.requests.cacheCall(i);
-    }
-    
     this.setState({dataKeyTokenBalance})
     this.setTokenBalance(this.props.ServiceRequest)
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.ServiceRequest !== prevProps.ServiceRequest) {
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.ServiceRequest !== prevProps.ServiceRequest || prevState.dataKeyTokenBalance !== this.state.dataKeyTokenBalance) {
       this.setState({ defaultState: false })
         this.setTokenBalance(this.props.ServiceRequest)
     }
@@ -110,7 +106,7 @@ class CreateRequest extends Component {
         const txHash = this.props.trasnactionStack[stackId]
       }
     } else if (this.state.value === 0 || this.state.value >= this.state.tokenBalance) {
-      this.setState({ alertText: `Oops! The you dont have enough token balance.`})
+      this.setState({ alertText: `Oops! You dont have enough token balance.`})
       this.handleDialogOpen()
     } else if (this.state.expiration === 0) {
       this.setState({ alertText: `Oops! Expiration should be great than current blocknumber.`})
@@ -129,18 +125,16 @@ class CreateRequest extends Component {
  
     return (
       <div>
-        <Paper style={styles} elevation={5}>
-
-          <p><strong>Create New Request: </strong></p>
+        {/* <Paper style={styles} elevation={5}> */}
           <form className="pure-form pure-form-stacked">
-            <input name="value" type="text" placeholder="tokens to stake:" value={this.state.value} onChange={this.handleRequestInputChange} />
-            <input name="expiration" type="text" placeholder="expiration block number:" value={this.state.expiration} onChange={this.handleRequestInputChange} />
-            <label>Current Blocknumber: {this.state.blockNumber}</label>
-            <input name="documentURI" type="text" placeholder="documentURI:" value={this.state.documentURI} onChange={this.handleRequestInputChange} />
-            <Button type="Button" variant="contained" onClick={this.handleCreateButton}>Create</Button>
+            <input name="value" type="text" placeholder="tokens to stake:" value={this.state.value} onChange={this.handleRequestInputChange} /> <br/><br/>
+            <input name="expiration" type="text" placeholder="expiration block number:" value={this.state.expiration} onChange={this.handleRequestInputChange} /> <br />
+            <label>Current Blocknumber: {this.state.blockNumber}</label> <br/>
+            <input name="documentURI" type="text" placeholder="documentURI:" value={this.state.documentURI} onChange={this.handleRequestInputChange} /><br/><br/>
+            <button type="button" class="blue" onClick={this.handleCreateButton}>Submit</button>
+            {/* <Button type="Button" variant="contained" onClick={this.handleCreateButton}>Create</Button> */}
           </form>
-
-      </Paper>
+        {/* </Paper> */}
 
       <Dialog PaperProps={dialogStyles} open={this.state.dialogOpen} >
         <p>{this.state.alertText}</p>

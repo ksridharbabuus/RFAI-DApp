@@ -16,6 +16,25 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
+// Exapandable pannels
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import Typography from '@material-ui/core/Typography';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
+
+// const styles = theme => ({
+//   root: {
+//     width: '100%',
+//     marginTop: theme.spacing.unit * 3,
+//     overflowX: 'auto',
+//   },
+//   table: {
+//     minWidth: 700,
+//   },
+// });
+
 //inline styles
 const styles = {
   backgroundColor: '#F9DBDB',
@@ -54,8 +73,11 @@ class RequestListV2 extends Component {
     // this.handleMemberRoleChange = this.handleMemberRoleChange.bind(this);
     // this.handleMemberStatusChange = this.handleMemberStatusChange.bind(this);
 
-    // this.handleDialogOpen = this.handleDialogOpen.bind(this)
-    // this.handleDialogClose = this.handleDialogClose.bind(this)
+    this.handleAcceptButton = this.handleAcceptButton.bind(this)
+    this.handleDialogOpen = this.handleDialogOpen.bind(this)
+    this.handleDialogClose = this.handleDialogClose.bind(this)
+    this.handleOpenRequestDialogClose = this.handleOpenRequestDialogClose.bind(this)
+
     // this.handleCreateButton = this.handleCreateButton.bind(this)
 
     this.state = {
@@ -65,9 +87,10 @@ class RequestListV2 extends Component {
       requests: [],
       compRequestStatus: props.compRequestStatus,
       dialogOpen: false,
+      dialogOpenRequest: false,
       alertText: ''
     }
-// console.log("Constructor - this.state.dataKeyNextRequestId" + this.state.dataKeyNextRequestId);
+
   }
 
   componentDidMount() {
@@ -99,7 +122,59 @@ class RequestListV2 extends Component {
     }
   }
 
+  handleDialogOpen() {
+    this.setState({ dialogOpen: true })
+  }
+
+  handleDialogClose() {
+    this.setState({ dialogOpen: false })
+  }
+
+  handleAcceptButton() {
+    this.setState({ dialogOpenRequest: true })
+  }
+
+  handleOpenRequestDialogClose() {
+    this.setState({ dialogOpenRequest: false })
+  }
+
+  createDetailedRow(req, index) {
+
+    if (this.props.ServiceRequest.requests[req] !== undefined && req !== null) {
+
+      var r = this.props.ServiceRequest.requests[req].value;
+
+      // If Rquest is Open
+      if(r.status === "0") {
+        return (
+            <TableRow key={r.requestId + r.requester}>
+              <TableCell colSpan={4}>
+                <div class="row">
+                    <div class="col-8">
+                        <div>Requester: <span>{r.requester}</span></div>
+                        <div>documentURI: <span>{r.documentURI}</span></div>
+                        <div>Expiry: <span>{r.expiration}</span></div>
+                    </div>                                        
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={this.handleAcceptButton}>Accept Request</button>
+                        <button class="red float-right ml-4">Reject Request</button>                                   
+                    </div>
+                </div>
+              </TableCell>
+            </TableRow>
+        )
+      }
+
+    }
+
+  }
+
   createRow(req, index) {
+
+    // <TableCell align="right">{r.documentURI}</TableCell>
+    // <TableCell align="right">{r.expiration}</TableCell>
 
     if (this.props.ServiceRequest.requests[req] !== undefined && req !== null) {
 
@@ -107,30 +182,38 @@ class RequestListV2 extends Component {
       if(r.status === this.state.compRequestStatus)
       {
         return (
+          <React.Fragment>
             <TableRow key={r.requestId}>
-              <TableCell component="th" scope="row">{r.requestId}</TableCell>
-              <TableCell align="right">{r.requester}</TableCell>
-              <TableCell align="right">{r.documentURI}</TableCell>
-              <TableCell align="right">{r.expiration}</TableCell>
-              <TableCell align="right">{r.totalFund}</TableCell>
-            </TableRow>
+                <TableCell component="th" scope="row">{r.requestId}</TableCell>
+                <TableCell align="right">{r.requester}</TableCell>
+
+                <TableCell align="right">{r.totalFund}</TableCell>
+                <TableCell align="right"><ExpandMoreIcon /></TableCell>
+
+              </TableRow>
+              {this.createDetailedRow(req, index)}
+          </React.Fragment>
         );
       }
     }
   }
 
   render() {
+
+    // <TableCell align="right">Document URI</TableCell>
+    // <TableCell align="right">Expiration</TableCell>
+
     return (
-      <div>
+      <div class="main">
         <Paper styles={rootStyles}>
           <Table styles={tableStyles}>
             <TableHead>
               <TableRow>
                 <TableCell>Request Id</TableCell>
                 <TableCell align="right">Requester</TableCell>
-                <TableCell align="right">Document URI</TableCell>
-                <TableCell align="right">Expiration</TableCell>
+
                 <TableCell align="right">Total Funds (AGI)</TableCell>
+                <TableCell align="right">+/-</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -139,9 +222,16 @@ class RequestListV2 extends Component {
           </Table>
         </Paper>
 
+
+
         <Dialog PaperProps={dialogStyles} open={this.state.dialogOpen} >
           <p>{this.state.alertText}</p>
           <p><Button variant="contained" onClick={this.handleDialogClose} >Close</Button></p>
+        </Dialog>
+
+        <Dialog PaperProps={dialogStyles} open={this.state.dialogOpenRequest} >
+          <p>My Accept Request Content Goes here...</p>
+          <p><Button variant="contained" onClick={this.handleOpenRequestDialogClose} >Close</Button></p>
         </Dialog>
 
       </div>
