@@ -76,8 +76,8 @@ class RequestsTab extends Component {
           </Tabs>
         </AppBar>
         {selectedTab === 0 && <Typography component="div" >Open Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
-        {selectedTab === 1 && <Typography component="div" >Approved Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
-        {selectedTab === 2 && <Typography component="div" >Rejected Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
+        {selectedTab === 1 && <Typography component="div" >Approved Requests <RequestListV2  compRequestStatus="1"/> </Typography>}
+        {selectedTab === 2 && <Typography component="div" >Rejected Requests <RequestListV2  compRequestStatus="2"/> </Typography>}
         {selectedTab === 3 && <Typography component="div" >Closed Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
         {selectedTab === 4 && <Typography component="div" >Expired Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
       </div>

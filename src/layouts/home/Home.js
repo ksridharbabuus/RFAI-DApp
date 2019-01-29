@@ -62,9 +62,10 @@ class Home extends Component {
       <main >
 
         {/* Header Design Goes here - For now keeping only the header home button */}
-        <a href="#" onClick={this.handleHomeButton}>Home Icon Place Holder</a><br/>
-        <a href="#" onClick={this.handleViewRequest}>Request List Page Place Holder</a><br/>
+        {/* <a href="#" onClick={this.handleHomeButton}>Home Icon Place Holder</a><br/> */}
+        {/* <a href="#" onClick={this.handleViewRequest}>Request List Page Place Holder</a><br/> */}
         <LandingPage handlerViewPage={this.handleViewRequest}/>
+        {/* <RequestList /> */}
         {this.state.showViewPage === true && <div class="main-content"><RequestsTab /></div>}
 
       </main>

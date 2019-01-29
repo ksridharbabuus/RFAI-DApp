@@ -23,6 +23,9 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
+import CreateRequest from '../../components/CreateRequest'
+import ApproveRequest from '../../components/ApproveRequest'
+
 
 // const styles = theme => ({
 //   root: {
@@ -73,11 +76,13 @@ class RequestListV2 extends Component {
     // this.handleMemberRoleChange = this.handleMemberRoleChange.bind(this);
     // this.handleMemberStatusChange = this.handleMemberStatusChange.bind(this);
 
-    this.handleAcceptButton = this.handleAcceptButton.bind(this)
+    this.handleApproveButton = this.handleApproveButton.bind(this)
+
     this.handleDialogOpen = this.handleDialogOpen.bind(this)
     this.handleDialogClose = this.handleDialogClose.bind(this)
-    this.handleOpenRequestDialogClose = this.handleOpenRequestDialogClose.bind(this)
 
+    this.handleApproveRequestDialogClose = this.handleApproveRequestDialogClose.bind(this)
+    // this.handleCreateRequestDialogClose = this.handleCreateRequestDialogClose.bind(this);
     // this.handleCreateButton = this.handleCreateButton.bind(this)
 
     this.state = {
@@ -87,14 +92,16 @@ class RequestListV2 extends Component {
       requests: [],
       compRequestStatus: props.compRequestStatus,
       dialogOpen: false,
-      dialogOpenRequest: false,
-      alertText: ''
+      dialogOpenApproveRequest: false,
+      alertText: '',
+
+      approveRequestId: 0,
+      approveRequestExpiry: 0
     }
 
   }
 
   componentDidMount() {
-
     const dataKeyNextRequestId = this.contracts.ServiceRequest.methods.nextRequestId.cacheCall();
     this.setState({dataKeyNextRequestId})
     this.setRequests(this.props.ServiceRequest)
@@ -130,13 +137,30 @@ class RequestListV2 extends Component {
     this.setState({ dialogOpen: false })
   }
 
-  handleAcceptButton() {
-    this.setState({ dialogOpenRequest: true })
+  handleApproveButton(event, requestId, expiry) {
+
+    console.log("handleApproveButton requestId - " + requestId);
+    console.log("handleApproveButton expiry - " + expiry);
+    // , approveRequestId: requestId, approveRequestExpiry: expiry
+    this.setState({approveRequestId: requestId, approveRequestExpiry: expiry}, () => {
+
+      this.setState( {dialogOpenApproveRequest: true});
+      console.log("handleApproveButton requestId in state - " + this.state.approveRequestId);
+      console.log("handleApproveButton expiry in state - " + this.state.approveRequestExpiry);
+    })
   }
 
-  handleOpenRequestDialogClose() {
-    this.setState({ dialogOpenRequest: false })
+  handleRejectButton(event, requestId) {
+    const stackId = this.contracts.ServiceRequest.methods["rejectRequest"].cacheSend(requestId, {from: this.props.accounts[0]})
+      if (this.props.transactionStack[stackId]) {
+        const txHash = this.props.trasnactionStack[stackId]
+      }
   }
+
+  handleApproveRequestDialogClose() {
+    this.setState({ dialogOpenApproveRequest: false })
+  }
+
 
   createDetailedRow(req, index) {
 
@@ -158,8 +182,8 @@ class RequestListV2 extends Component {
                 </div>
                 <div class="row">
                     <div class="col">
-                        <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={this.handleAcceptButton}>Accept Request</button>
-                        <button class="red float-right ml-4">Reject Request</button>                                   
+                        <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleApproveButton(event, r.requestId, r.expiration)}>Approve Request</button>
+                        <button class="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                   
                     </div>
                 </div>
               </TableCell>
@@ -222,17 +246,21 @@ class RequestListV2 extends Component {
           </Table>
         </Paper>
 
-
-
         <Dialog PaperProps={dialogStyles} open={this.state.dialogOpen} >
           <p>{this.state.alertText}</p>
           <p><Button variant="contained" onClick={this.handleDialogClose} >Close</Button></p>
         </Dialog>
 
-        <Dialog PaperProps={dialogStyles} open={this.state.dialogOpenRequest} >
-          <p>My Accept Request Content Goes here...</p>
-          <p><Button variant="contained" onClick={this.handleOpenRequestDialogClose} >Close</Button></p>
+        <Dialog PaperProps={dialogStyles} open={this.state.dialogOpenApproveRequest} >
+          <ApproveRequest requestId={this.state.approveRequestId} requestExpiry={this.state.approveRequestExpiry} />
+          <p><Button variant="contained" onClick={this.handleApproveRequestDialogClose} >Close</Button></p>
         </Dialog>
+
+        {/* <Dialog PaperProps={dialogStyles} open={this.state.dialogCreateRequest} >
+          <CreateRequest />
+          <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p>
+        </Dialog> */}
+
 
       </div>
 

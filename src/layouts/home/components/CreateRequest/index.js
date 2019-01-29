@@ -96,16 +96,18 @@ class CreateRequest extends Component {
 
   handleCreateButton() {
 
+console.log("this.state.tokenBalance - " + this.state.tokenBalance + "<=" + this.state.value);
+console.log("this.state.value >= this.state.tokenBalance - " + (parseInt(this.state.value) >= parseInt(this.state.tokenBalance)));
 
     //value, expiration, documentURI 
     // Add Condifition of the BlockNumber Validation as well
-    if(this.state.documentURI.length > 0 && this.state.value > 0 && this.state.value <= this.state.tokenBalance) {
+    if(this.state.documentURI.length > 0 && parseInt(this.state.value) > 0 && parseInt(this.state.value) <= parseInt(this.state.tokenBalance)) {
       const stackId = this.contracts.ServiceRequest.methods["createRequest"].cacheSend(this.state.value, this.state.expiration, this.state.documentURI, {from: this.props.accounts[0]})
 
       if (this.props.transactionStack[stackId]) {
         const txHash = this.props.trasnactionStack[stackId]
       }
-    } else if (this.state.value === 0 || this.state.value >= this.state.tokenBalance) {
+    } else if (this.state.value === 0 || parseInt(this.state.value) >= parseInt(this.state.tokenBalance)) {
       this.setState({ alertText: `Oops! You dont have enough token balance.`})
       this.handleDialogOpen()
     } else if (this.state.expiration === 0) {

@@ -50254,8 +50254,14 @@
       "links": {},
       "address": "0xcfeb869f69431e42cdb54a4f4f105c19c080a601",
       "transactionHash": "0x750a67baeba0f5b7a78c8e369c9379a2c16b4d749b4f7d636c498938771055af"
+    },
+    "1548684104454": {
+      "events": {},
+      "links": {},
+      "address": "0xcfeb869f69431e42cdb54a4f4f105c19c080a601",
+      "transactionHash": "0x750a67baeba0f5b7a78c8e369c9379a2c16b4d749b4f7d636c498938771055af"
     }
   },
   "schemaVersion": "2.0.1",
-  "updatedAt": "2019-01-25T15:37:58.996Z"
+  "updatedAt": "2019-01-28T14:03:58.081Z"
 }
