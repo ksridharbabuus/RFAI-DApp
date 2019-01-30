@@ -12,13 +12,20 @@ import Dialog from '@material-ui/core/Dialog'
 
 //inline styles
 const styles = {
-    backgroundColor: '#F9DBDB',
+    backgroundColor: 'white',
     padding: 20
 }
 
 const dialogStyles = {
   style: {
     backgroundColor: '#F9DBDB',
+    padding: 20
+  }
+}
+
+const dialogApproveStyles = {
+  style: {
+    backgroundColor: 'white',
     padding: 20
   }
 }
@@ -39,17 +46,37 @@ class ApproveToken extends Component {
 
     // this.props.tknSpender
     this.state = {
-      dialogOpen: false,
       spenderAddress: this.contracts.ServiceRequest.address,
+      dataKeyTokenAllowance: null,
+      tknAllowance: 0,
       approveAmount: '',
+      dialogOpen: false,
       alertText: ''
     }
 
   }
 
   componentDidMount() {
-    this.setState({invalidAddress: false})
+    const dataKeyTokenAllowance = this.contracts.SingularityNetToken.methods["allowance"].cacheCall(this.props.accounts[0], this.state.spenderAddress);
+    this.setState({dataKeyTokenAllowance})
+    this.setTokenAllowance(this.props.SingularityNetToken)
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.SingularityNetToken !== prevProps.SingularityNetToken || this.state.dataKeyTokenAllowance !== prevState.dataKeyTokenAllowance) {
+        this.setTokenAllowance(this.props.SingularityNetToken)
+    }
+  }
+
+  setTokenAllowance(contract) {
+    if (contract.allowance[this.state.dataKeyTokenAllowance] !== undefined && this.state.dataKeyTokenAllowance !== null) {
+console.log("contract.allowance[this.state.dataKeyTokenAllowance].value - " + contract.allowance[this.state.dataKeyTokenAllowance].value)      
+      this.setState({
+        tknAllowance: contract.allowance[this.state.dataKeyTokenAllowance].value
+      })
+    }
+  }
+
 
   handleAmountInputChange(event) {
     if (event.target.value.match(/^[0-9]{1,40}$/)) {
@@ -98,15 +125,15 @@ class ApproveToken extends Component {
     }
   }
 
-  groomWei(weiValue) {
-    var factor = Math.pow(10, 8)
-    var balance = this.context.drizzle.web3.utils.fromWei(weiValue)
-    balance = Math.round(balance * factor) / factor
-    return balance
-  }
+  // groomWei(weiValue) {
+  //   var factor = Math.pow(10, 8)
+  //   var balance = this.context.drizzle.web3.utils.fromWei(weiValue)
+  //   balance = Math.round(balance * factor) / factor
+  //   return balance
+  // }
 
   render() {
-    var approveGroomed = this.groomWei(this.state.approveAmount)
+    // var approveGroomed = this.groomWei(this.state.approveAmount)
 
     return (
       <div>
@@ -114,10 +141,11 @@ class ApproveToken extends Component {
           <p><strong>Approve Tokens to spend by RFAI Escrow Contract: </strong></p>
 
           <form className="pure-form pure-form-stacked">
-            <input name="approveAmount" type="text" placeholder="tokens to approve:" value={this.state.approveAmount} onChange={this.handleAmountInputChange} />
+            <p>Approved allowance: {this.state.tknAllowance}</p><br></br>
+            <input name="approveAmount" type="text" placeholder="Tokens to Approve:" value={this.state.approveAmount} onChange={this.handleAmountInputChange} /> <br/><br/><br/>
             <Button type="Button" variant="contained" onClick={this.handleApproveButton}>Approve</Button>
           </form>
-          <p>Tokens to approve: {approveGroomed} </p>
+          {/* <p>Tokens to approve: {approveGroomed} </p> */}
       </Paper>
 
       <Dialog PaperProps={dialogStyles} open={this.state.dialogOpen} >

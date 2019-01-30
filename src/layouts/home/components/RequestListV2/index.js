@@ -23,8 +23,8 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import CreateRequest from '../../components/CreateRequest'
 import ApproveRequest from '../../components/ApproveRequest'
+import StakeRequest from '../../components/StakeRequest'
 
 
 // const styles = theme => ({
@@ -47,6 +47,13 @@ const styles = {
 const dialogStyles = {
   style: {
     backgroundColor: '#F9DBDB',
+    padding: 20
+  }
+}
+
+const dialogApproveStyles = {
+  style: {
+    backgroundColor: 'white',
     padding: 20
   }
 }
@@ -82,8 +89,11 @@ class RequestListV2 extends Component {
     this.handleDialogClose = this.handleDialogClose.bind(this)
 
     this.handleApproveRequestDialogClose = this.handleApproveRequestDialogClose.bind(this)
-    // this.handleCreateRequestDialogClose = this.handleCreateRequestDialogClose.bind(this);
-    // this.handleCreateButton = this.handleCreateButton.bind(this)
+
+
+    this.handleStakeButton = this.handleStakeButton.bind(this)
+    this.handleStakeRequestDialogClose = this.handleStakeRequestDialogClose.bind(this)
+
 
     this.state = {
       dataKeyNextRequestId: null,
@@ -93,10 +103,13 @@ class RequestListV2 extends Component {
       compRequestStatus: props.compRequestStatus,
       dialogOpen: false,
       dialogOpenApproveRequest: false,
+      dialogOpenStakeRequest: false,
       alertText: '',
 
       approveRequestId: 0,
-      approveRequestExpiry: 0
+      approveRequestExpiry: 0,
+      stakeRequestId: 0,
+      stakeRequestExpiry: 0
     }
 
   }
@@ -150,6 +163,19 @@ class RequestListV2 extends Component {
     })
   }
 
+  handleStakeButton(event, requestId, expiry) {
+
+    console.log("handleStakeButton requestId - " + requestId);
+    console.log("handleStakeButton expiry - " + expiry);
+
+    this.setState({stakeRequestId: requestId, stakeRequestExpiry: expiry}, () => {
+
+      this.setState( {dialogOpenStakeRequest: true});
+      console.log("handleStakeButton requestId in state - " + this.state.stakeRequestId);
+      console.log("handleStakeButton expiry in state - " + this.state.stakeRequestExpiry);
+    })
+  }
+
   handleRejectButton(event, requestId) {
     const stackId = this.contracts.ServiceRequest.methods["rejectRequest"].cacheSend(requestId, {from: this.props.accounts[0]})
       if (this.props.transactionStack[stackId]) {
@@ -161,6 +187,9 @@ class RequestListV2 extends Component {
     this.setState({ dialogOpenApproveRequest: false })
   }
 
+  handleStakeRequestDialogClose() {
+    this.setState({ dialogOpenStakeRequest: false })
+  }
 
   createDetailedRow(req, index) {
 
@@ -188,6 +217,46 @@ class RequestListV2 extends Component {
                 </div>
               </TableCell>
             </TableRow>
+        )
+      } else if(r.status === "1") {
+        return (
+          <TableRow key={r.requestId + r.requester}>
+            <TableCell colSpan={4}>
+              <div class="row">
+                  <div class="col-8">
+                      <div>Requester: <span>{r.requester}</span></div>
+                      <div>documentURI: <span>{r.documentURI}</span></div>
+                      <div>Expiry: <span>{r.expiration}</span></div>
+                  </div>                                        
+              </div>
+              <div class="row">
+                  <div class="col">
+                      <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleStakeButton(event, r.requestId, r.expiration)}>Stake Request</button>
+                      {/* <button class="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                    */}
+                  </div>
+              </div>
+            </TableCell>
+          </TableRow>
+        )
+      }else if(r.status === "2") {
+        return (
+          <TableRow key={r.requestId + r.requester}>
+            <TableCell colSpan={4}>
+              <div class="row">
+                  <div class="col-8">
+                      <div>Requester: <span>{r.requester}</span></div>
+                      <div>documentURI: <span>{r.documentURI}</span></div>
+                      <div>Expiry: <span>{r.expiration}</span></div>
+                  </div>                                        
+              </div>
+              {/* <div class="row">
+                  <div class="col">
+                      <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleStakeButton(event, r.requestId, r.expiration)}>Stake Request</button>
+                      <button class="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                   
+                  </div>
+              </div> */}
+            </TableCell>
+          </TableRow>
         )
       }
 
@@ -251,10 +320,66 @@ class RequestListV2 extends Component {
           <p><Button variant="contained" onClick={this.handleDialogClose} >Close</Button></p>
         </Dialog>
 
-        <Dialog PaperProps={dialogStyles} open={this.state.dialogOpenApproveRequest} >
+        {/* <Dialog PaperProps={dialogStyles} open={this.state.dialogOpenApproveRequest} >
           <ApproveRequest requestId={this.state.approveRequestId} requestExpiry={this.state.approveRequestExpiry} />
           <p><Button variant="contained" onClick={this.handleApproveRequestDialogClose} >Close</Button></p>
+        </Dialog> */}
+
+
+        <Dialog PaperProps={dialogApproveStyles} open={this.state.dialogOpenApproveRequest} >
+
+          <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Approve Request</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close" onClick={this.handleApproveRequestDialogClose}>
+                              <span aria-hidden="true">&times;</span>
+                          </button>
+                          <div class="clear"></div><br/>
+                      </div>
+                      <div class="modal-body">
+                      <ApproveRequest requestId={this.state.approveRequestId} requestExpiry={this.state.approveRequestExpiry} />
+                      </div>
+                      {/* <div class="modal-footer">
+                          <button type="button" class="white" data-dismiss="modal">Close</button>
+                          <button type="button" class="blue">Submit</button>
+                      </div> */}
+                  </div>
+              </div>
+
+
+    
+            {/* <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p> */}
         </Dialog>
+
+
+        <Dialog PaperProps={dialogApproveStyles} open={this.state.dialogOpenStakeRequest} >
+
+          <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Stake Request</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close" onClick={this.handleStakeRequestDialogClose}>
+                              <span aria-hidden="true">&times;</span>
+                          </button>
+                          <div class="clear"></div><br/>
+                      </div>
+                      <div class="modal-body">
+                      <StakeRequest requestId={this.state.approveRequestId} requestExpiry={this.state.approveRequestExpiry} />
+                      </div>
+                      {/* <div class="modal-footer">
+                          <button type="button" class="white" data-dismiss="modal">Close</button>
+                          <button type="button" class="blue">Submit</button>
+                      </div> */}
+                  </div>
+              </div>
+
+
+
+            {/* <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p> */}
+          </Dialog>
+
+
 
         {/* <Dialog PaperProps={dialogStyles} open={this.state.dialogCreateRequest} >
           <CreateRequest />

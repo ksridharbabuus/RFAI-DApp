@@ -65,7 +65,7 @@ class Home extends Component {
         {/* <a href="#" onClick={this.handleHomeButton}>Home Icon Place Holder</a><br/> */}
         {/* <a href="#" onClick={this.handleViewRequest}>Request List Page Place Holder</a><br/> */}
         <LandingPage handlerViewPage={this.handleViewRequest}/>
-        {/* <RequestList /> */}
+        {/* <RequestList />  */}
         {this.state.showViewPage === true && <div class="main-content"><RequestsTab /></div>}
 
       </main>

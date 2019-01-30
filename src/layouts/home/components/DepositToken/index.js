@@ -12,7 +12,7 @@ import Dialog from '@material-ui/core/Dialog'
 
 //inline styles
 const styles = {
-    backgroundColor: '#F9DBDB',
+    backgroundColor: 'white',
     padding: 20
 }
 
@@ -39,16 +39,75 @@ class DepositToken extends Component {
 
     // this.props.tknSpender
     this.state = {
-      dialogOpen: false,
       spenderAddress: this.contracts.ServiceRequest.address,
       depositAmount: '',
+      dataKeyTokenBalance: null,
+      tknBalance: 0,
+      dataKeyTokenAllowance: null,
+      tknAllowance: 0,
+      dataKeyEscrowBalance: null,
+      escrowBalance: 0,
+      dialogOpen: false,
       alertText: ''
     }
   }
 
   componentDidMount() {
-    this.setState({invalidAddress: false})
+    // this.setState({invalidAddress: false})
+    const dataKeyTokenAllowance = this.contracts.SingularityNetToken.methods["allowance"].cacheCall(this.props.accounts[0], this.state.spenderAddress);
+    this.setState({dataKeyTokenAllowance})
+    this.setTokenAllowance(this.props.SingularityNetToken)
+
+    const dataKeyTokenBalance = this.contracts.SingularityNetToken.methods.balanceOf.cacheCall(this.props.accounts[0]);
+    this.setState({dataKeyTokenBalance})
+    this.setTokenBalance(this.props.SingularityNetToken)
+
+    const dataKeyEscrowBalance = this.contracts.ServiceRequest.methods.balances.cacheCall(this.props.accounts[0]);
+    this.setState({dataKeyEscrowBalance})
+    this.setEscrowBalance(this.props.ServiceRequest)
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.SingularityNetToken !== prevProps.SingularityNetToken || this.state.dataKeyTokenAllowance !== prevState.dataKeyTokenAllowance) {
+        this.setTokenAllowance(this.props.SingularityNetToken)
+    }
+    if (this.props.SingularityNetToken !== prevProps.SingularityNetToken || this.state.dataKeyTokenBalance !== prevState.dataKeyTokenBalance) {
+      this.setTokenBalance(this.props.SingularityNetToken)
+    }
+    if (this.props.ServiceRequest !== prevProps.ServiceRequest || this.state.dataKeyEscrowBalance !== prevState.dataKeyEscrowBalance) {
+      this.setEscrowBalance(this.props.ServiceRequest)
+    }
+  }
+
+  setTokenAllowance(contract) {
+    if (contract.allowance[this.state.dataKeyTokenAllowance] !== undefined && this.state.dataKeyTokenAllowance !== null) {
+console.log("contract.allowance[this.state.dataKeyTokenAllowance].value - " + contract.allowance[this.state.dataKeyTokenAllowance].value)      
+      this.setState({
+        tknAllowance: contract.allowance[this.state.dataKeyTokenAllowance].value
+      })
+    }
+  }
+
+  setTokenBalance(contract) {
+    if (contract.balanceOf[this.state.dataKeyTokenBalance] !== undefined && this.state.dataKeyTokenBalance !== null) {
+console.log("contract.balanceOf[this.state.dataKeyTokenBalance].value - " + contract.balanceOf[this.state.dataKeyTokenBalance].value);
+      this.setState({
+        tknBalance: contract.balanceOf[this.state.dataKeyTokenBalance].value
+      })
+    }
+  }
+
+  setEscrowBalance(contract) {
+    if (contract.balances[this.state.dataKeyEscrowBalance] !== undefined && this.state.dataKeyEscrowBalance !== null) {
+console.log("contract.balances[this.state.dataKeyEscrowBalance].value - " + contract.balances[this.state.dataKeyEscrowBalance].value);
+      this.setState({
+        escrowBalance: contract.balances[this.state.dataKeyEscrowBalance].value
+      })
+    }
+  }
+
+
+
 
   handleAmountInputChange(event) {
     if (event.target.value.match(/^[0-9]{1,40}$/)) {
@@ -76,13 +135,16 @@ class DepositToken extends Component {
 
   handleDepositButton() {
     var amountBN = new BN(this.state.depositAmount)
-    var balanceBN = new BN(this.props.tknBalance)
-    var allowanceBN = new BN(this.props.allowanceBalance)
+    var balanceBN = new BN(this.state.tknBalance)
+    var allowanceBN = new BN(this.state.tknAllowance)
 
-    if(amountBN.lte(balanceBN) && amountBN.lte(allowanceBN)) {
+    if(amountBN.gt(0) && amountBN.lte(balanceBN) && amountBN.lte(allowanceBN)) {
       this.contracts.ServiceRequest.methods["deposit"].cacheSend(this.state.depositAmount, {from: this.props.accounts[0]})
     } else if (amountBN.gt(balanceBN)) {
       this.setState({ alertText: 'Oops! You are trying to transfer more than you have.'})
+      this.handleDialogOpen()
+    } else if (amountBN.gt(allowanceBN)) {
+      this.setState({ alertText: 'Oops! You are trying to transfer more than you have approved.'})
       this.handleDialogOpen()
     } else {
       this.setState({ alertText: 'Oops! Something went wrong. Try checking your transaction details.'})
@@ -102,26 +164,29 @@ class DepositToken extends Component {
     }
   }
 
-  groomWei(weiValue) {
-    var factor = Math.pow(10, 8)
-    var balance = this.context.drizzle.web3.utils.fromWei(weiValue)
-    balance = Math.round(balance * factor) / factor
-    return balance
-  }
+  // groomWei(weiValue) {
+  //   var factor = Math.pow(10, 8)
+  //   var balance = this.context.drizzle.web3.utils.fromWei(weiValue)
+  //   balance = Math.round(balance * factor) / factor
+  //   return balance
+  // }
 
   render() {
-    var depositGroomed = this.groomWei(this.state.depositAmount)
+    // var depositGroomed = this.groomWei(this.state.depositAmount)
 
     return (
       <div>
         <Paper style={styles} elevation={5}>
-          <p><strong>Deposit Token to RFAI Escrow Contract: </strong></p>
+          <p><strong>Deposit Token to RFAI Escrow Contract </strong></p>
 
           <form className="pure-form pure-form-stacked">
-            <input name="depositAmount" type="text" placeholder="tokens to deposit:" value={this.state.depositAmount} onChange={this.handleAmountInputChange} />
+            <p>Token Balance: {this.state.tknBalance} AGI</p>
+            <p>Balance in Escrow: {this.state.escrowBalance} AGI</p>
+            <p>Token Allowance: {this.state.tknAllowance} AGI</p><br/>
+            <input name="depositAmount" type="text" placeholder="Tokens to Deposit:" value={this.state.depositAmount} onChange={this.handleAmountInputChange} /><br/><br/><br/>
             <Button type="Button" variant="contained" onClick={this.handleDepositButton}>Deposit</Button>
           </form>
-          <p>Tokens to deposit: {depositGroomed} </p>
+          {/* <p>Tokens to deposit: {depositGroomed} </p> */}
       </Paper>
 
       <Dialog PaperProps={dialogStyles} open={this.state.dialogOpen} >
