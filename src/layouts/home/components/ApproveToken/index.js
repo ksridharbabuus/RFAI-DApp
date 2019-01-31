@@ -138,10 +138,10 @@ console.log("contract.allowance[this.state.dataKeyTokenAllowance].value - " + co
     return (
       <div>
         <Paper style={styles} elevation={5}>
-          <p><strong>Approve Tokens to spend by RFAI Escrow Contract: </strong></p>
+          <p><strong>Approve Tokens to spend by RFAI Escrow Contract </strong></p>
 
           <form className="pure-form pure-form-stacked">
-            <p>Approved allowance: {this.state.tknAllowance}</p><br></br>
+            <p>Approved allowance: {this.state.tknAllowance} AGI</p><br></br>
             <input name="approveAmount" type="text" placeholder="Tokens to Approve:" value={this.state.approveAmount} onChange={this.handleAmountInputChange} /> <br/><br/><br/>
             <Button type="Button" variant="contained" onClick={this.handleApproveButton}>Approve</Button>
           </form>

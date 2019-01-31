@@ -94,6 +94,11 @@ class RequestListV2 extends Component {
     this.handleStakeButton = this.handleStakeButton.bind(this)
     this.handleStakeRequestDialogClose = this.handleStakeRequestDialogClose.bind(this)
 
+    this.handleSubmitSolutionButton = this.handleSubmitSolutionButton.bind(this)
+    this.handleSubmitSolutionDialogClose = this.handleSubmitSolutionDialogClose.bind(this)
+
+    this.handleSubmitSolution2Button = this.handleSubmitSolution2Button.bind(this)
+    this.handleRequestInputChange = this.handleRequestInputChange.bind(this)
 
     this.state = {
       dataKeyNextRequestId: null,
@@ -104,12 +109,14 @@ class RequestListV2 extends Component {
       dialogOpen: false,
       dialogOpenApproveRequest: false,
       dialogOpenStakeRequest: false,
+      dialogOpenSubmitSolutionRequest: false,
       alertText: '',
 
+      solutionDocumentURI: '',
       approveRequestId: 0,
       approveRequestExpiry: 0,
-      stakeRequestId: 0,
-      stakeRequestExpiry: 0
+      selectedRequestId: 0,
+      selectedRequestExpiry: 0
     }
 
   }
@@ -165,16 +172,31 @@ class RequestListV2 extends Component {
 
   handleStakeButton(event, requestId, expiry) {
 
-    console.log("handleStakeButton requestId - " + requestId);
-    console.log("handleStakeButton expiry - " + expiry);
+    console.log("handleStakeButton selected requestId - " + requestId);
+    console.log("handleStakeButton selected expiry - " + expiry);
 
-    this.setState({stakeRequestId: requestId, stakeRequestExpiry: expiry}, () => {
+    this.setState({selectedRequestId: requestId, selectedRequestExpiry: expiry}, () => {
 
       this.setState( {dialogOpenStakeRequest: true});
-      console.log("handleStakeButton requestId in state - " + this.state.stakeRequestId);
-      console.log("handleStakeButton expiry in state - " + this.state.stakeRequestExpiry);
+      console.log("handleStakeButton selected requestId in state - " + this.state.selectedRequestId);
+      console.log("handleStakeButton selected expiry in state - " + this.state.selectedRequestExpiry);
     })
   }
+
+  
+  handleSubmitSolutionButton(event, requestId, expiry) {
+
+    console.log("handleSubmitSolutionButton selected requestId - " + requestId);
+    console.log("handleSubmitSolutionButton selected expiry - " + expiry);
+
+    this.setState({selectedRequestId: requestId, selectedRequestExpiry: expiry}, () => {
+
+      this.setState( {dialogOpenSubmitSolutionRequest: true});
+      console.log("handleSubmitSolutionButton selected requestId in state - " + this.state.selectedRequestId);
+      console.log("handleSubmitSolutionButton selected expiry in state - " + this.state.selectedRequestExpiry);
+    })
+  }
+
 
   handleRejectButton(event, requestId) {
     const stackId = this.contracts.ServiceRequest.methods["rejectRequest"].cacheSend(requestId, {from: this.props.accounts[0]})
@@ -183,12 +205,39 @@ class RequestListV2 extends Component {
       }
   }
 
+  handleSubmitSolution2Button() {
+    
+    if(this.state.solutionDocumentURI.length > 0) {
+console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)      
+      const stackId = this.contracts.ServiceRequest.methods["createOrUpdateSolutionProposal"].cacheSend(this.state.selectedRequestId, this.state.solutionDocumentURI, {from: this.props.accounts[0]})
+      if (this.props.transactionStack[stackId]) {
+        const txHash = this.props.trasnactionStack[stackId]
+      }
+    } else if (this.state.solutionDocumentURI.length === 0) {
+      this.setState({ alertText: 'Oops! Invalid solution document URI.'})
+      this.handleDialogOpen()
+    } else {
+      this.setState({ alertText: 'Oops! Something went wrong. Try checking your transaction details.'})
+      this.handleDialogOpen()
+    }
+
+    
+  }
+
   handleApproveRequestDialogClose() {
     this.setState({ dialogOpenApproveRequest: false })
   }
 
   handleStakeRequestDialogClose() {
     this.setState({ dialogOpenStakeRequest: false })
+  }
+
+  handleSubmitSolutionDialogClose() {
+    this.setState({ dialogOpenSubmitSolutionRequest: false })
+  }
+
+  handleRequestInputChange(event) {
+    this.setState({ [event.target.name]: event.target.value })
   }
 
   createDetailedRow(req, index) {
@@ -231,6 +280,7 @@ class RequestListV2 extends Component {
               </div>
               <div class="row">
                   <div class="col">
+                      <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleSubmitSolutionButton(event, r.requestId, r.expiration)}> Submit Solution</button>
                       <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleStakeButton(event, r.requestId, r.expiration)}>Stake Request</button>
                       {/* <button class="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                    */}
                   </div>
@@ -346,15 +396,11 @@ class RequestListV2 extends Component {
                       </div> */}
                   </div>
               </div>
-
-
-    
             {/* <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p> */}
         </Dialog>
 
 
         <Dialog PaperProps={dialogApproveStyles} open={this.state.dialogOpenStakeRequest} >
-
           <div class="modal-dialog" role="document">
                   <div class="modal-content">
                       <div class="modal-header">
@@ -365,7 +411,7 @@ class RequestListV2 extends Component {
                           <div class="clear"></div><br/>
                       </div>
                       <div class="modal-body">
-                      <StakeRequest requestId={this.state.approveRequestId} requestExpiry={this.state.approveRequestExpiry} />
+                      <StakeRequest requestId={this.state.selectedRequestId} requestExpiry={this.state.selectedRequestExpiry} />
                       </div>
                       {/* <div class="modal-footer">
                           <button type="button" class="white" data-dismiss="modal">Close</button>
@@ -373,20 +419,46 @@ class RequestListV2 extends Component {
                       </div> */}
                   </div>
               </div>
-
-
-
             {/* <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p> */}
           </Dialog>
 
+          <Dialog PaperProps={dialogApproveStyles} open={this.state.dialogOpenSubmitSolutionRequest} >
+          <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Submit Solution</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close" onClick={this.handleSubmitSolutionDialogClose}>
+                              <span aria-hidden="true">&times;</span>
+                          </button>
+                          <div class="clear"></div><br/>
+                      </div>
+                      <div class="modal-body">
+                      {/* <StakeRequest requestId={this.state.selectedRequestId} requestExpiry={this.state.selectedRequestExpiry} /> */}
 
 
-        {/* <Dialog PaperProps={dialogStyles} open={this.state.dialogCreateRequest} >
-          <CreateRequest />
-          <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p>
-        </Dialog> */}
+                        <div class="main-content">
+                            <div > {/*  class="main" Looks like this style has fixed width for the Tab Control...*/}
+                              <Paper style={dialogApproveStyles} elevation={5}>
+                                <p><strong>Submit Solution to Request Id - {this.state.selectedRequestId} </strong></p>
 
+                                <form className="pure-form pure-form-stacked">
+                                  <input name="solutionDocumentURI" type="text" placeholder="Document URI:" value={this.state.solutionDocumentURI} onChange={this.handleRequestInputChange} /><br/><br/><br/>
+                                  <Button type="Button" variant="contained" onClick={this.handleSubmitSolution2Button}>Submit</Button>
+                                </form>
+                                {/* <p>Tokens to deposit: {depositGroomed} </p> */}
+                              </Paper>
+                            </div>
+                        </div>
 
+                      {/* <div class="modal-footer">
+                          <button type="button" class="white" data-dismiss="modal">Close</button>
+                          <button type="button" class="blue">Submit</button>
+                      </div> */}
+                  </div>
+              </div>
+            </div>
+            {/* <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p> */}
+          </Dialog>
       </div>
 
     )
