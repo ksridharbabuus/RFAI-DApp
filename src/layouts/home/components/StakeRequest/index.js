@@ -155,7 +155,7 @@ console.log("contract.balances[this.state.dataKeyEscrowBalance].value - " + cont
   stakeFragment() {
     return (
       <Paper style={styles} elevation={5}>
-          <p><strong>Stake Token to Request - {this.state.requestId} </strong></p>
+          <p><strong>Stake Token for Request Id - {this.state.requestId} </strong></p>
 
           <form className="pure-form pure-form-stacked">
             <p>Balance in Escrow: {this.state.escrowBalance} AGI</p>

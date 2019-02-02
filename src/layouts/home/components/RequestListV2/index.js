@@ -26,6 +26,10 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ApproveRequest from '../../components/ApproveRequest'
 import StakeRequest from '../../components/StakeRequest'
 
+import RequestSolution from '../../components/RequestSolution'
+
+import RequestStakeDetails from '../../components/RequestStakeDetails'
+
 
 // const styles = theme => ({
 //   root: {
@@ -100,6 +104,10 @@ class RequestListV2 extends Component {
     this.handleSubmitSolution2Button = this.handleSubmitSolution2Button.bind(this)
     this.handleRequestInputChange = this.handleRequestInputChange.bind(this)
 
+    this.handleShowStakeButton = this.handleShowStakeButton.bind(this);
+    this.handleShowStakeDialogClose = this.handleShowStakeDialogClose.bind(this)
+
+
     this.state = {
       dataKeyNextRequestId: null,
       nextRequestId: 0,
@@ -110,6 +118,8 @@ class RequestListV2 extends Component {
       dialogOpenApproveRequest: false,
       dialogOpenStakeRequest: false,
       dialogOpenSubmitSolutionRequest: false,
+      dialogOpenShowStake: false,
+
       alertText: '',
 
       solutionDocumentURI: '',
@@ -224,6 +234,12 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
     
   }
 
+  handleShowStakeButton(event, requestId) {
+    this.setState({selectedRequestId: requestId}, () => {
+      this.setState( {dialogOpenShowStake: true});
+    })
+  }
+
   handleApproveRequestDialogClose() {
     this.setState({ dialogOpenApproveRequest: false })
   }
@@ -238,6 +254,10 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
 
   handleRequestInputChange(event) {
     this.setState({ [event.target.name]: event.target.value })
+  }
+
+  handleShowStakeDialogClose() {
+    this.setState( {dialogOpenShowStake: false});
   }
 
   createDetailedRow(req, index) {
@@ -279,12 +299,27 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
                   </div>                                        
               </div>
               <div class="row">
+                  <div class="col-8">
+                      <div>Submitted Solutions<span></span></div>
+                      <div>Submitter: <span></span> Document URI: <span></span></div>
+                  </div>                                        
+              </div>
+              <div class="row">
                   <div class="col">
                       <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleSubmitSolutionButton(event, r.requestId, r.expiration)}> Submit Solution</button>
                       <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleStakeButton(event, r.requestId, r.expiration)}>Stake Request</button>
                       {/* <button class="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                    */}
                   </div>
               </div>
+
+              <div class="row">
+                  <div class="col-8">
+                       <p>Submitted Solutions:</p>
+                      <RequestSolution requestId={r.requestId}/>
+                  </div>                                        
+              </div>
+              
+
             </TableCell>
           </TableRow>
         )
@@ -330,7 +365,9 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
                 <TableCell component="th" scope="row">{r.requestId}</TableCell>
                 <TableCell align="right">{r.requester}</TableCell>
 
-                <TableCell align="right">{r.totalFund}</TableCell>
+                <TableCell align="right">
+                  <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleShowStakeButton(event, r.requestId)}>{r.totalFund}</button>
+                </TableCell>
                 <TableCell align="right"><ExpandMoreIcon /></TableCell>
 
               </TableRow>
@@ -339,6 +376,21 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
         );
       }
     }
+  }
+
+  generateRequests() {
+
+    const requestsHTML = this.state.dataKeyRequestKeys.map((req, index) =>  { 
+      return this.createRow(req, index)
+    })
+    
+    const noRequests = <TableRow><TableCell colSpan={4}>No requests found </TableCell> </TableRow>
+// console.log("requestsHTML.length - " + requestsHTML.length + "---" + this.state.compRequestStatus)
+// console.log("requestsHTML -- " + requestsHTML);
+    return noRequests;
+
+
+
   }
 
   render() {
@@ -360,7 +412,7 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
               </TableRow>
             </TableHead>
             <TableBody>
-              {this.state.dataKeyRequestKeys.map((req, index) =>  this.createRow(req, index))}
+              {this.generateRequests() /* {this.state.dataKeyRequestKeys.map((req, index) =>  this.createRow(req, index))} */}
             </TableBody>
           </Table>
         </Paper>
@@ -459,7 +511,29 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
             </div>
             {/* <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p> */}
           </Dialog>
+
+          <Dialog PaperProps={dialogApproveStyles} open={this.state.dialogOpenShowStake} >
+           <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Request Stake Details</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close" onClick={this.handleShowStakeDialogClose}>
+                              <span aria-hidden="true">&times;</span>
+                          </button>
+                          <div class="clear"></div><br/>
+                      </div>
+                      <div class="modal-body">
+                        <RequestStakeDetails requestId={this.state.selectedRequestId} />
+                      </div>
+                  </div>
+            </div>
+            {/* <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p> */}
+          </Dialog>
+
       </div>
+
+
+
 
     )
   }

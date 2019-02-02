@@ -468,6 +468,8 @@ contract ServiceRequest {
         return memberKeys;
     }
 
+    // TBD: Following functions to be deleted as we have detailed functions to get the values
+    /*
     function getStakeMembers(uint256 requestId) public view returns (address[]) {
         Request memory req = requests[requestId];
         return req.stakeMembers;
@@ -476,6 +478,62 @@ contract ServiceRequest {
     function getSolutionSubmitters(uint256 requestId) public view returns (address[]) {
         Request memory req = requests[requestId];
         return req.submitters;
+    }
+    */
+
+    function getServiceRequestById(uint256 reqId) public view 
+    returns (bool found, uint256 requestId, address requester, uint256 totalFund, bytes documentURI, uint256 expiration, uint256 endSubmission, uint256 endEvaluation, RequestStatus status, address[] stakeMembers, address[] submitters) 
+    {
+        Request memory req = requests[reqId];
+
+        if(req.requester == address(0)) {
+            found = false;
+            return;
+        }
+
+        found = true;
+        requestId = req.requestId;
+        requester = req.requester; 
+        totalFund = req.totalFund; 
+        documentURI = req.documentURI; 
+        expiration = req.expiration; 
+        endSubmission = req.endSubmission;
+        endEvaluation = req.endEvaluation; 
+        status = req.status; 
+        stakeMembers = req.stakeMembers; 
+        submitters = req.submitters;
+    }
+
+    function getSubmittedSolutionById(uint256 requestId, address submitter) public view 
+    returns (bool found, bytes solutionDocURI, uint256 totalVotes, bool isSubmitted, bool isShortlisted, bool isClaimed)
+    {
+        Request storage req = requests[requestId];
+
+        if(req.submittedSols[submitter].isSubmitted == false) {
+            found = false;
+            return;
+        }
+
+        found = true;
+        solutionDocURI = req.submittedSols[submitter].solutionDocURI;
+        totalVotes = req.submittedSols[submitter].totalVotes;
+        isSubmitted = req.submittedSols[submitter].isSubmitted;
+        isShortlisted =  req.submittedSols[submitter].isShortlisted;
+        isClaimed = req.submittedSols[submitter].isClaimed;
+
+    }
+
+    function getStakeById(uint256 requestId, address staker) public view 
+    returns (bool found, uint256 stake)
+    {
+        Request storage req = requests[requestId];
+        if(req.funds[staker] == 0) {
+            found = false;
+            return;
+        }
+        found = true;
+        stake = req.funds[staker];
+
     }
   
 }
