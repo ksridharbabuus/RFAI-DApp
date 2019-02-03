@@ -1,26 +1,14 @@
 import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
-import web3 from 'web3'
-import { ContractData } from 'drizzle-react-components'
 
 //components
-import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
-//import InvalidAddressModal from '../InvalidAddressModal'
-import Dialog from '@material-ui/core/Dialog'
 
 //inline styles
 const styles = {
-    backgroundColor: '#F9DBDB',
+    backgroundColor: 'white',
     padding: 20
-}
-
-const dialogStyles = {
-  style: {
-    backgroundColor: '#F9DBDB',
-    padding: 20
-  }
 }
 
 class ContractConfig extends Component {
@@ -46,7 +34,6 @@ class ContractConfig extends Component {
 
   componentDidMount() {
     // Get the Data Key
-
     const dataKeyMinStake = this.contracts.ServiceRequest.methods.minStake.cacheCall();
     this.setState({dataKeyMinStake})
 
@@ -102,19 +89,15 @@ class ContractConfig extends Component {
       <div>
         <Paper style={styles} elevation={5}>
 
-          <p><strong>Service Request Configurations: </strong></p>
+          <p><strong>RFAI Contract Configurations: </strong></p>
           <form className="pure-form pure-form-stacked">
-            <label>Min Stake: </label> {this.state.minStake}
-            <label>Max Stakers: </label> {this.state.maxStakers}
-            <label>Owner: </label> {this.state.owner}
-            <label>Next Request Id: </label> {this.state.nextRequestId}
+            <label>Minimum Stake: </label> {this.state.minStake} <br/>
+            <label>Maximum Stakers: </label> {this.state.maxStakers} <br />
+            <label>Owner: </label> {this.state.owner} <br />
+            <label>Number of Requests : </label> {this.state.nextRequestId}
           </form>
         </Paper>
 
-        <Dialog PaperProps={dialogStyles} open={this.state.dialogOpen} >
-          <p>{this.state.alertText}</p>
-          <p><Button variant="contained" onClick={this.handleDialogClose} >Close</Button></p>
-        </Dialog>
       </div>
     )
   }

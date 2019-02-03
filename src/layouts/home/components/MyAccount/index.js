@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { AccountData, ContractData, ContractForm } from 'drizzle-react-components'
 import { drizzleConnect } from 'drizzle-react'
+import web3 from 'web3'
 import PropTypes from 'prop-types'
 
 // Request Tabs Functionality
@@ -8,15 +8,34 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button'
+import Dialog from '@material-ui/core/Dialog'
+import Divider from '@material-ui/core/Divider'
 
 // Custom Components
-import RequestListV2 from '../../components/RequestListV2'
+import ApproveToken from '../../components/ApproveToken'
+import DepositToken from '../../components/DepositToken'
+import WithdrawToken from '../../components/WithdrawToken'
 
 //inline styles
 const rootStyles = {
     flexGrow: 1,
     backgroundColor: "#aabbcc",
 }
+
+const styles = {
+  backgroundColor: 'white',
+  padding: 20
+}
+
+const dialogStyles = {
+style: {
+  backgroundColor: '#F9DBDB',
+  padding: 20
+}
+}
+
+const BN = web3.utils.BN
 
 function TabContainer(props) {
   return (
@@ -30,7 +49,7 @@ TabContainer.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-class RequestsTab extends Component {
+class MyAccount extends Component {
 
   constructor(props, context) {
     super(props)
@@ -42,21 +61,16 @@ class RequestsTab extends Component {
       dialogOpen: false,
       alertText: ''
     }
-
   }
 
   componentDidMount() {
-
   }
 
-  componentDidUpdate(prevProps) {
-
+  componentDidUpdate(prevProps, prevState) {
   }
-
 
   handleChange = (event, value) => {
     this.setState({ selectedTab: value });
-    console.log("selectedTab - " + value);
   };
 
   render() {
@@ -64,29 +78,27 @@ class RequestsTab extends Component {
     const selectedTab = this.state.selectedTab;
     
     return (
-      <div className="main-content">
-      <div className="main">
+      <div class="main-content">
+      <div > {/*  class="main" Looks like this style has fixed width for the Tab Control...*/}
         <AppBar position="static" color="default">
           <Tabs value={selectedTab} onChange={this.handleChange}>
-            <Tab label="Open " />
-            <Tab label="Approved " />
-            <Tab label="Rejected " />
-            <Tab label="Closed " />
-            <Tab label="Expired " />
+            <Tab label="Allowance" />
+            <Tab label="Deposit" />
+            <Tab label="Withdraw" />
+            <Tab label="Admin" />
           </Tabs>
         </AppBar>
-        {selectedTab === 0 && <Typography component="div" >Open Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
-        {selectedTab === 1 && <Typography component="div" >Approved Requests <RequestListV2  compRequestStatus="1"/> </Typography>}
-        {selectedTab === 2 && <Typography component="div" >Rejected Requests <RequestListV2  compRequestStatus="2"/> </Typography>}
-        {selectedTab === 3 && <Typography component="div" >Closed Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
-        {selectedTab === 4 && <Typography component="div" >Expired Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
+        {selectedTab === 0 && <Typography component="div" ><ApproveToken /> </Typography>}
+        {selectedTab === 1 && <Typography component="div" ><DepositToken /> </Typography>}
+        {selectedTab === 2 && <Typography component="div" ><WithdrawToken /> </Typography>}
       </div>
+
       </div>
     )
   }
 }
 
-RequestsTab.contextTypes = {
+MyAccount.contextTypes = {
   drizzle: PropTypes.object
 }
 
@@ -102,4 +114,4 @@ const mapStateToProps = state => {
   }
 }
 
-export default drizzleConnect(RequestsTab, mapStateToProps)
+export default drizzleConnect(MyAccount, mapStateToProps)

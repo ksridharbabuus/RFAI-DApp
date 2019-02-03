@@ -1,6 +1,4 @@
 import React, { Component } from 'react'
-import { AccountData, ContractData, ContractForm } from 'drizzle-react-components'
-import logo from '../../logo.png'
 import PropTypes from 'prop-types'
 
 // import components
@@ -66,7 +64,7 @@ class Home extends Component {
         {/* <a href="#" onClick={this.handleViewRequest}>Request List Page Place Holder</a><br/> */}
         <LandingPage handlerViewPage={this.handleViewRequest}/>
         {/* <RequestList />  */}
-        {this.state.showViewPage === true && <div class="main-content"><RequestsTab /></div>}
+        {this.state.showViewPage === true && <div className="main-content"><RequestsTab /></div>}
 
       </main>
     )

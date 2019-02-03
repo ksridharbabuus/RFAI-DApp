@@ -1,13 +1,19 @@
 import React, { Component } from 'react'
 import logo from '../../../../images/Logo.png'
+import settingimg from '../../../../images/settings.svg'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
 
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import IconButton from '@material-ui/core/IconButton'
 
 // import components
 import CreateRequest from '../../components/CreateRequest'
+import MyAccount from '../../components/MyAccount'
+import Administration from '../../components/Administration'
 
 const dialogStyles = {
     style: {
@@ -16,26 +22,34 @@ const dialogStyles = {
     }
   }
 
+const buttonStyles = {
+    margin: 2,
+  }
+
 class LandingPage extends Component {
 
     constructor(props, context) {
         super(props)
     
-        this.contracts = context.drizzle.contracts
-    
-        // this.handleMemberInputChange = this.handleMemberInputChange.bind(this)
-        // this.handleMemberRoleChange = this.handleMemberRoleChange.bind(this);
-        // this.handleMemberStatusChange = this.handleMemberStatusChange.bind(this);
-    
+        this.contracts = context.drizzle.contracts    
+
         this.handleCreateButton = this.handleCreateButton.bind(this)   
         this.handleCreateRequestDialogClose = this.handleCreateRequestDialogClose.bind(this);
     
+        this.handleMyAccountButton = this.handleMyAccountButton.bind(this)   
+        this.handleMyAccountDialogClose = this.handleMyAccountDialogClose.bind(this);
+
+        this.handleAdminButton = this.handleAdminButton.bind(this)   
+        this.handleAdminDialogClose = this.handleAdminDialogClose.bind(this);
     
         this.state = {
           dialogCreateRequest: false,
+          dialogMyAccount: false,
+          dialogAdmin: false,
+          anchorEl: null,
           alertText: ''
         }
-    
+
       }
 
     handleCreateButton() {
@@ -46,33 +60,77 @@ class LandingPage extends Component {
         this.setState({ dialogCreateRequest: false })
     }
 
+    handleMyAccountButton() {
+        this.setState({ anchorEl: null });
+        this.setState({ dialogMyAccount: true })
+    }
+
+    handleMyAccountDialogClose() {
+        this.setState({ dialogMyAccount: false })
+    }
+
+    handleAdminButton() {
+        this.setState({ anchorEl: null });
+        this.setState({ dialogAdmin: true })
+    }
+
+    handleAdminDialogClose() {
+        this.setState({ dialogAdmin: false })
+    }
+
+    handleClick = event => {
+        this.setState({ anchorEl: event.currentTarget });
+      };
+    
+    handleClose = () => {
+        this.setState({ anchorEl: null });
+    };
+    
   render() {
 
-     /*
-      <div className="pure-g">
-        <div className="pure-u-1-1 header">
-            <img src={logo} alt="drizzle-logo" />
-            <h1>Network</h1>
-            <p><Network /></p>
-            <h1>RFAI Portal</h1>
-            <p>RFAI Portal Description Goes Here.<br/>RFAI Portal Description Goes Here.<br/>RFAI Portal Description Goes Here.</p>
-            <br/><br/>
-        </div>
-      </div>
-*/ 
+    const { anchorEl } = this.state;
 
     return (
         <React.Fragment>
           <div>
-            <div class="top-fold">
-                <nav class="navbar navbar-singularity">
-                    <a class="navbar-brand" href="#"><img src={logo} /></a>
-                </nav>   
-                <div class="main">
-                    <div class="row">
-                        <div class="col-7">
+            <div className="top-fold">
+                <nav className="navbar navbar-singularity">
+                    <div className="col-8">
+                        <a className="navbar-brand" href="https://singularitynet.io/" target="_new"><img src={logo} /></a>
+                    </div>
+                    <div className="col-4" style={{ 'text-align': 'right', 'margin-left':'auto', 'margin-right':'0', 'float': 'right',}}>
+                        {/* <img src={settingimg} onClick = {this.handleMyAccountButton} /> */}
+                        {/* <div> */}
+                            {/* <Button
+                            aria-owns={anchorEl ? 'simple-menu' : undefined}
+                            aria-haspopup="true"
+                            onClick={this.handleClick}
+                            >
+                            Open Menu
+                            </Button> */}
+
+                            <IconButton className={buttonStyles} aria-label="Delete" aria-owns={anchorEl ? 'simple-menu' : undefined} onClick={this.handleClick} aria-haspopup="true" >
+                                <img src={settingimg} /> 
+                            {/* <DeleteIcon /> */}
+                            </IconButton>
+
+                            <Menu
+                                id="simple-menu"
+                                anchorEl={anchorEl}
+                                open={Boolean(anchorEl)}
+                                onClose={this.handleClose}
+                            >
+                            <MenuItem onClick={this.handleMyAccountButton}>My account</MenuItem>
+                            <MenuItem onClick={this.handleAdminButton}>Administration</MenuItem>
+                            </Menu>
+
+                    </div>
+                </nav>  
+                <div className="main">
+                    <div className="row">
+                        <div className="col-7">
                             <h2>Request for AI</h2>
-                            <p class="tagline">Lorem ipsum dolor sit amet, vim congue. </p>
+                            <p className="tagline">Lorem ipsum dolor sit amet, vim congue. </p>
                             <p>
                                 Lorem ipsum dolor sit amet, sit an soluta audiam sanctus, ad eam partem perpetua recteque, sea ad nonumy nonumes.                    
                                 Nam et equidem offendit signiferumque. 
@@ -82,15 +140,15 @@ class LandingPage extends Component {
                                 An vel alterum perpetua, ei est labores persequeris. Quo id inani congue, est ignota imperdiet cu, debet aliquid ne vis.                     
                             </p>                            
                         </div>
-                        <div class="col-5"></div>
+                        <div className="col-5"></div>
                     </div>
-                    <button class="blue"  onClick = {this.handleCreateButton}>Create Request</button>
-                    <button class="blue ml-4" onClick = {this.props.handlerViewPage}>View Request</button>
+                    <button className="blue"  onClick = {this.handleCreateButton}>Create Request</button>
+                    <button className="blue ml-4" onClick = {this.props.handlerViewPage}>View Request</button>
                 </div> 
             </div>
-            <div class="waves">
-                <div class="waves-wrapper" >
-                    <div class="waves-wrapper-svg">
+            <div className="waves">
+                <div className="waves-wrapper" >
+                    <div className="waves-wrapper-svg">
                         <svg fill="#fff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" preserveAspectRatio="none">  
                         <path d="M 1014 264 v 122 h -808 l -172 -86 s 310.42 -22.84 402 -79 c 106 -65 154 -61 268 -12 c 107 46 195.11 5.94 275 137 z"></path>   
                         <path d="M -302 55 s 235.27 208.25 352 159 c 128 -54 233 -98 303 -73 c 92.68 33.1 181.28 115.19 235 108 c 104.9 -14 176.52 -173.06 267 -118 c 85.61 52.09 145 123 145 123 v 74 l -1306 10 z"></path>  
@@ -107,29 +165,63 @@ class LandingPage extends Component {
 
         <Dialog PaperProps={dialogStyles} open={this.state.dialogCreateRequest} >
 
-        <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Create Request</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onClick={this.handleCreateRequestDialogClose}>
+            <div className="modal-dialog" role="document">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title" id="exampleModalLabel">Create Request</h5>
+                        <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={this.handleCreateRequestDialogClose}>
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <div class="clear"></div><br/>
+                        <div className="clear"></div><br/>
                     </div>
-                    <div class="modal-body">
+                    <div className="modal-body">
                         <CreateRequest />
                     </div>
-                    {/* <div class="modal-footer">
-                        <button type="button" class="white" data-dismiss="modal">Close</button>
-                        <button type="button" class="blue">Submit</button>
+                    {/* <div className="modal-footer">
+                        <button type="button" className="white" data-dismiss="modal">Close</button>
+                        <button type="button" className="blue">Submit</button>
                     </div> */}
                 </div>
             </div>
-
-
-            
             {/* <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p> */}
         </Dialog>
+
+        <Dialog PaperProps={dialogStyles} open={this.state.dialogMyAccount} >
+
+            <div className="modal-dialog" role="document">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title" id="exampleModalLabel">My Account</h5>
+                        <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={this.handleMyAccountDialogClose}>
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <div className="clear"></div><br/>
+                    </div>
+                    <div className="modal-body">
+                        <MyAccount />
+                    </div>
+                </div>
+            </div>
+        </Dialog>
+
+        <Dialog PaperProps={dialogStyles} open={this.state.dialogAdmin} >
+
+            <div  role="document"> {/* className="modal-dialog" */}
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title" id="exampleModalLabel">RFAI Contract Administration</h5>
+                        <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={this.handleAdminDialogClose}>
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <div className="clear"></div><br/>
+                    </div>
+                    <div className="modal-body">
+                        <Administration />
+                    </div>
+                </div>
+            </div>
+        </Dialog>
+
 
         </React.Fragment>
 

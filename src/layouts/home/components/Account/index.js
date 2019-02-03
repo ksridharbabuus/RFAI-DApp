@@ -38,8 +38,8 @@ class Account extends Component {
     this.setTokenBalance(this.props.SingularityNetToken)
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.SingularityNetToken !== prevProps.SingularityNetToken) {
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.SingularityNetToken !== prevProps.SingularityNetToken || this.state.dataKeyTokenBalance !== prevState.dataKeyTokenBalance) {
       this.setState({ defaultState: false })
         this.setTokenBalance(this.props.SingularityNetToken)
     }

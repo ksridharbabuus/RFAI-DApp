@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
 import web3 from 'web3'
-import { ContractData } from 'drizzle-react-components'
 
 // Request Table Functionality
 import Table from '@material-ui/core/Table';
@@ -12,9 +11,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
 //components
-import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
-import Dialog from '@material-ui/core/Dialog'
 
 //inline styles
 const styles = {
@@ -38,9 +35,7 @@ const rootStyles = {
 }
 
 const tableStyles = {
-  style: {
-    minWidth: 750,
-  }
+    minWidth: 450,
 }
 
 
@@ -114,7 +109,6 @@ class RequestStakeDetails extends Component {
         dataKeyStakeMembers.push(this.contracts.ServiceRequest.methods.getStakeById.cacheCall(this.state.requestId, r.stakeMembers[i]))
       }
       this.setState({dataKeyStakeMembers});
-
     }
   }
 
@@ -143,7 +137,7 @@ class RequestStakeDetails extends Component {
     return (
       <div>
         <Paper styles={rootStyles}>
-          <Table styles={tableStyles}>
+          <Table style={tableStyles}>
             <TableHead>
               <TableRow>
                 <TableCell>Staker</TableCell>

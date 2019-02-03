@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { AccountData, ContractData, ContractForm } from 'drizzle-react-components'
 import { drizzleConnect } from 'drizzle-react'
+import web3 from 'web3'
 import PropTypes from 'prop-types'
 
 // Request Tabs Functionality
@@ -10,13 +10,29 @@ import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 
 // Custom Components
-import RequestListV2 from '../../components/RequestListV2'
+import CreateMember from '../../components/CreateMember'
+import ContractConfig from '../../components/ContractConfig'
+
 
 //inline styles
 const rootStyles = {
     flexGrow: 1,
     backgroundColor: "#aabbcc",
 }
+
+const styles = {
+  backgroundColor: 'white',
+  padding: 20
+}
+
+const dialogStyles = {
+style: {
+  backgroundColor: '#F9DBDB',
+  padding: 20
+}
+}
+
+const BN = web3.utils.BN
 
 function TabContainer(props) {
   return (
@@ -30,7 +46,7 @@ TabContainer.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-class RequestsTab extends Component {
+class Administration extends Component {
 
   constructor(props, context) {
     super(props)
@@ -42,21 +58,16 @@ class RequestsTab extends Component {
       dialogOpen: false,
       alertText: ''
     }
-
   }
 
   componentDidMount() {
-
   }
 
-  componentDidUpdate(prevProps) {
-
+  componentDidUpdate(prevProps, prevState) {
   }
-
 
   handleChange = (event, value) => {
     this.setState({ selectedTab: value });
-    console.log("selectedTab - " + value);
   };
 
   render() {
@@ -65,28 +76,24 @@ class RequestsTab extends Component {
     
     return (
       <div className="main-content">
-      <div className="main">
+      <div > {/*  className="main" Looks like this style has fixed width for the Tab Control...*/}
         <AppBar position="static" color="default">
           <Tabs value={selectedTab} onChange={this.handleChange}>
-            <Tab label="Open " />
-            <Tab label="Approved " />
-            <Tab label="Rejected " />
-            <Tab label="Closed " />
-            <Tab label="Expired " />
+            <Tab label="Configurations" />
+            <Tab label="Foundation Member" />
           </Tabs>
         </AppBar>
-        {selectedTab === 0 && <Typography component="div" >Open Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
-        {selectedTab === 1 && <Typography component="div" >Approved Requests <RequestListV2  compRequestStatus="1"/> </Typography>}
-        {selectedTab === 2 && <Typography component="div" >Rejected Requests <RequestListV2  compRequestStatus="2"/> </Typography>}
-        {selectedTab === 3 && <Typography component="div" >Closed Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
-        {selectedTab === 4 && <Typography component="div" >Expired Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
+        {selectedTab === 0 && <Typography component="div" ><ContractConfig /> </Typography>}
+        {selectedTab === 1 && <Typography component="div" ><CreateMember /> </Typography>}
+        
       </div>
+
       </div>
     )
   }
 }
 
-RequestsTab.contextTypes = {
+Administration.contextTypes = {
   drizzle: PropTypes.object
 }
 
@@ -102,4 +109,4 @@ const mapStateToProps = state => {
   }
 }
 
-export default drizzleConnect(RequestsTab, mapStateToProps)
+export default drizzleConnect(Administration, mapStateToProps)

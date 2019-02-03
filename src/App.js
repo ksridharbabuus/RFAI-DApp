@@ -8,7 +8,7 @@ import HomeContainer from './layouts/home/HomeContainer'
 // import './css/open-sans.css'
 // import './css/pure-min.css'
 
-import './css/main.min.css'
+import './css/main.css'
 
 //import './App.css'
 
@@ -17,7 +17,7 @@ class App extends Component {
     // <div className="App">
     return (
       
-      <div class="container-fluid p-0">
+      <div className="container-fluid p-0">
         <Route exact path="/" component={HomeContainer}/>
 
         <footer></footer>

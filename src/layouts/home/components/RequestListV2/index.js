@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import { AccountData, ContractData, ContractForm } from 'drizzle-react-components'
+import ReactDOM from 'react-dom'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
+import { withStyles } from '@material-ui/core/styles';
 
 //components
 import Button from '@material-ui/core/Button'
@@ -20,8 +21,10 @@ import TableRow from '@material-ui/core/TableRow';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import ExpansionPanelActions from '@material-ui/core/ExpansionPanelActions';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Divider from '@material-ui/core/Divider';
 
 import ApproveRequest from '../../components/ApproveRequest'
 import StakeRequest from '../../components/StakeRequest'
@@ -30,17 +33,6 @@ import RequestSolution from '../../components/RequestSolution'
 
 import RequestStakeDetails from '../../components/RequestStakeDetails'
 
-
-// const styles = theme => ({
-//   root: {
-//     width: '100%',
-//     marginTop: theme.spacing.unit * 3,
-//     overflowX: 'auto',
-//   },
-//   table: {
-//     minWidth: 700,
-//   },
-// });
 
 //inline styles
 const styles = {
@@ -76,16 +68,50 @@ const tableStyles = {
   }
 }
 
+const heading = {
+  style: {
+    //fontSize: theme.typography.pxToRem(15),
+    flexBasis: '33.33%',
+    flexShrink: 0,
+  }
+}
+
+const secondaryHeading = { 
+  style: {
+    //fontSize: theme.typography.pxToRem(15),
+    //color: theme.palette.text.secondary,
+    flexBasis: '33.33%',
+    flexShrink: 0,
+  }
+}
+
+const thirdHeading = {
+  style: {
+    //fontSize: theme.typography.pxToRem(15),
+    //color: theme.palette.text.secondary,
+    flexBasis: '33.33%',
+    flexShrink: 0,
+  }
+}
+
+const headerStyles = {
+  style: {
+    width: '100%',
+  }
+}
+
+const rowStyles = {
+  style: {
+    backgroundColor: 'white',
+  }
+}
+
 class RequestListV2 extends Component {
 
   constructor(props, context) {
     super(props)
 
     this.contracts = context.drizzle.contracts
-
-    // this.handleMemberInputChange = this.handleMemberInputChange.bind(this)
-    // this.handleMemberRoleChange = this.handleMemberRoleChange.bind(this);
-    // this.handleMemberStatusChange = this.handleMemberStatusChange.bind(this);
 
     this.handleApproveButton = this.handleApproveButton.bind(this)
 
@@ -121,6 +147,7 @@ class RequestListV2 extends Component {
       dialogOpenShowStake: false,
 
       alertText: '',
+      expanded: null,
 
       solutionDocumentURI: '',
       approveRequestId: 0,
@@ -135,6 +162,8 @@ class RequestListV2 extends Component {
     const dataKeyNextRequestId = this.contracts.ServiceRequest.methods.nextRequestId.cacheCall();
     this.setState({dataKeyNextRequestId})
     this.setRequests(this.props.ServiceRequest)
+
+    ReactDOM.findDOMNode(this).scrollIntoView();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -168,42 +197,23 @@ class RequestListV2 extends Component {
   }
 
   handleApproveButton(event, requestId, expiry) {
-
-    console.log("handleApproveButton requestId - " + requestId);
-    console.log("handleApproveButton expiry - " + expiry);
     // , approveRequestId: requestId, approveRequestExpiry: expiry
     this.setState({approveRequestId: requestId, approveRequestExpiry: expiry}, () => {
-
       this.setState( {dialogOpenApproveRequest: true});
-      console.log("handleApproveButton requestId in state - " + this.state.approveRequestId);
-      console.log("handleApproveButton expiry in state - " + this.state.approveRequestExpiry);
     })
   }
 
   handleStakeButton(event, requestId, expiry) {
 
-    console.log("handleStakeButton selected requestId - " + requestId);
-    console.log("handleStakeButton selected expiry - " + expiry);
-
     this.setState({selectedRequestId: requestId, selectedRequestExpiry: expiry}, () => {
-
       this.setState( {dialogOpenStakeRequest: true});
-      console.log("handleStakeButton selected requestId in state - " + this.state.selectedRequestId);
-      console.log("handleStakeButton selected expiry in state - " + this.state.selectedRequestExpiry);
     })
   }
 
   
   handleSubmitSolutionButton(event, requestId, expiry) {
-
-    console.log("handleSubmitSolutionButton selected requestId - " + requestId);
-    console.log("handleSubmitSolutionButton selected expiry - " + expiry);
-
     this.setState({selectedRequestId: requestId, selectedRequestExpiry: expiry}, () => {
-
       this.setState( {dialogOpenSubmitSolutionRequest: true});
-      console.log("handleSubmitSolutionButton selected requestId in state - " + this.state.selectedRequestId);
-      console.log("handleSubmitSolutionButton selected expiry in state - " + this.state.selectedRequestExpiry);
     })
   }
 
@@ -218,7 +228,6 @@ class RequestListV2 extends Component {
   handleSubmitSolution2Button() {
     
     if(this.state.solutionDocumentURI.length > 0) {
-console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)      
       const stackId = this.contracts.ServiceRequest.methods["createOrUpdateSolutionProposal"].cacheSend(this.state.selectedRequestId, this.state.solutionDocumentURI, {from: this.props.accounts[0]})
       if (this.props.transactionStack[stackId]) {
         const txHash = this.props.trasnactionStack[stackId]
@@ -269,87 +278,200 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
       // If Rquest is Open
       if(r.status === "0") {
         return (
-            <TableRow key={r.requestId + r.requester}>
-              <TableCell colSpan={4}>
-                <div class="row">
-                    <div class="col-8">
+          <React.Fragment>
+            <ExpansionPanelDetails>
+                <div className="row">
+                    <div className="col-8">
                         <div>Requester: <span>{r.requester}</span></div>
                         <div>documentURI: <span>{r.documentURI}</span></div>
                         <div>Expiry: <span>{r.expiration}</span></div>
                     </div>                                        
                 </div>
-                <div class="row">
-                    <div class="col">
-                        <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleApproveButton(event, r.requestId, r.expiration)}>Approve Request</button>
-                        <button class="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                   
+            </ExpansionPanelDetails>
+            <Divider />
+            <ExpansionPanelActions>
+                <div className="row">
+                    <div className="col">
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleApproveButton(event, r.requestId, r.expiration)}>Approve Request</button>
+                        <button className="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                   
                     </div>
                 </div>
-              </TableCell>
-            </TableRow>
+            </ExpansionPanelActions>
+          </React.Fragment>
         )
       } else if(r.status === "1") {
         return (
-          <TableRow key={r.requestId + r.requester}>
-            <TableCell colSpan={4}>
-              <div class="row">
-                  <div class="col-8">
-                      <div>Requester: <span>{r.requester}</span></div>
-                      <div>documentURI: <span>{r.documentURI}</span></div>
-                      <div>Expiry: <span>{r.expiration}</span></div>
-                  </div>                                        
-              </div>
-              <div class="row">
-                  <div class="col-8">
-                      <div>Submitted Solutions<span></span></div>
-                      <div>Submitter: <span></span> Document URI: <span></span></div>
-                  </div>                                        
-              </div>
-              <div class="row">
-                  <div class="col">
-                      <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleSubmitSolutionButton(event, r.requestId, r.expiration)}> Submit Solution</button>
-                      <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleStakeButton(event, r.requestId, r.expiration)}>Stake Request</button>
-                      {/* <button class="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                    */}
-                  </div>
-              </div>
-
-              <div class="row">
-                  <div class="col-8">
+          <React.Fragment>
+            <ExpansionPanelDetails>
+                <div className="row">
+                    <div className="col-8">
+                        <div>Requester: <span>{r.requester}</span></div>
+                        <div>documentURI: <span>{r.documentURI}</span></div>
+                        <div>Expiry: <span>{r.expiration}</span></div>
+                    </div>                                        
+                </div>
+                <div className="row">
+                    <div className="col-8">
+                        <div>Submitted Solutions<span></span></div>
+                        <div>Submitter: <span></span> Document URI: <span></span></div>
+                    </div>                                        
+                </div>
+                <div className="row">
+                  <div className="col-8">
                        <p>Submitted Solutions:</p>
                       <RequestSolution requestId={r.requestId}/>
                   </div>                                        
               </div>
-              
-
-            </TableCell>
-          </TableRow>
+            </ExpansionPanelDetails>
+            <Divider />
+            <ExpansionPanelActions>
+                <div className="row">
+                    <div className="col">
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleSubmitSolutionButton(event, r.requestId, r.expiration)}> Submit Solution</button>
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleStakeButton(event, r.requestId, r.expiration)}>Stake Request</button>
+                        {/* <button className="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                    */}
+                    </div>
+                </div>
+            </ExpansionPanelActions>
+          </React.Fragment>
         )
       }else if(r.status === "2") {
         return (
-          <TableRow key={r.requestId + r.requester}>
-            <TableCell colSpan={4}>
-              <div class="row">
-                  <div class="col-8">
-                      <div>Requester: <span>{r.requester}</span></div>
-                      <div>documentURI: <span>{r.documentURI}</span></div>
-                      <div>Expiry: <span>{r.expiration}</span></div>
-                  </div>                                        
-              </div>
-              {/* <div class="row">
-                  <div class="col">
-                      <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleStakeButton(event, r.requestId, r.expiration)}>Stake Request</button>
-                      <button class="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                   
-                  </div>
-              </div> */}
-            </TableCell>
-          </TableRow>
+          <React.Fragment>
+            <ExpansionPanelDetails>
+                <div className="row">
+                    <div className="col-8">
+                        <div>Requester: <span>{r.requester}</span></div>
+                        <div>documentURI: <span>{r.documentURI}</span></div>
+                        <div>Expiry: <span>{r.expiration}</span></div>
+                    </div>                                        
+                </div>
+            </ExpansionPanelDetails>
+            <Divider />
+            <ExpansionPanelActions>
+                <div className="row">
+                    <div className="col">
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleSubmitSolutionButton(event, r.requestId, r.expiration)}> Submit Solution</button>
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleStakeButton(event, r.requestId, r.expiration)}>Stake Request</button>
+                        {/* <button className="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                    */}
+                    </div>
+                </div>
+            </ExpansionPanelActions>
+          </React.Fragment>
         )
       }
+    }
+  }
 
+  createActionRow(req, index) {
+
+    if (this.props.ServiceRequest.requests[req] !== undefined && req !== null) {
+      var r = this.props.ServiceRequest.requests[req].value;
+
+      // If Rquest is Open
+      if(r.status === "0") {
+        return (
+            <ExpansionPanelActions>
+                <div className="row">
+                    <div className="col">
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleApproveButton(event, r.requestId, r.expiration)}>Approve Request</button>
+                        <button className="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                   
+                    </div>
+                </div>
+            </ExpansionPanelActions>
+        )
+      } else if(r.status === "1") {
+        return (
+            <ExpansionPanelActions>
+                <div className="row">
+                    <div className="col">
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleSubmitSolutionButton(event, r.requestId, r.expiration)}> Submit Solution</button>
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleStakeButton(event, r.requestId, r.expiration)}>Stake Request</button>
+                        {/* <button className="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                    */}
+                    </div>
+                </div>
+            </ExpansionPanelActions>
+        )
+      }else if(r.status === "2") {
+        return (
+            <ExpansionPanelActions>
+                <div className="row">
+                    <div className="col">
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleSubmitSolutionButton(event, r.requestId, r.expiration)}> Submit Solution</button>
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleStakeButton(event, r.requestId, r.expiration)}>Stake Request</button>
+                        {/* <button className="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                    */}
+                    </div>
+                </div>
+            </ExpansionPanelActions>
+        )
+      }
+    }
+  }
+
+  createDetailsRow(req, index) {
+
+    if (this.props.ServiceRequest.requests[req] !== undefined && req !== null) {
+
+      var r = this.props.ServiceRequest.requests[req].value;
+
+      // If Rquest is Open
+      if(r.status === "0") {
+        return (
+            <ExpansionPanelDetails>
+                <div className="row">
+                    <div className="col-8">
+                        <div>Requester: <span>{r.requester}</span></div>
+                        <div>documentURI: <span>{r.documentURI}</span></div>
+                        <div>Expiry: <span>{r.expiration}</span></div>
+                    </div>                                        
+                </div>
+            </ExpansionPanelDetails>
+        )
+      } else if(r.status === "1") {
+        return (
+            <ExpansionPanelDetails>
+                <div className="row">
+                    <div className="col-8">
+                        <div>Requester: <span>{r.requester}</span></div>
+                        <div>documentURI: <span>{r.documentURI}</span></div>
+                        <div>Expiry: <span>{r.expiration}</span></div>
+                    </div>                                        
+                </div>
+                <div className="row">
+                    <div className="col-8">
+                        <div>Submitted Solutions<span></span></div>
+                        <div>Submitter: <span></span> Document URI: <span></span></div>
+                    </div>                                        
+                </div>
+                <div className="row">
+                  <div className="col-8">
+                       <p>Submitted Solutions:</p>
+                      {/* <RequestSolution requestId={r.requestId}/> */}
+                  </div>                                        
+              </div>
+            </ExpansionPanelDetails>
+        )
+      }else if(r.status === "2") {
+        return (
+            <ExpansionPanelDetails>
+                <div className="row">
+                    <div className="col-8">
+                        <div>Requester: <span>{r.requester}</span></div>
+                        <div>documentURI: <span>{r.documentURI}</span></div>
+                        <div>Expiry: <span>{r.expiration}</span></div>
+                    </div>                                        
+                </div>
+            </ExpansionPanelDetails>
+        )
+      }
     }
 
   }
 
   createRow(req, index) {
+
+    const {classes} = this.props;
+    const {expanded} = this.state;
 
     // <TableCell align="right">{r.documentURI}</TableCell>
     // <TableCell align="right">{r.expiration}</TableCell>
@@ -360,19 +482,36 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
       if(r.status === this.state.compRequestStatus)
       {
         return (
-          <React.Fragment>
-            <TableRow key={r.requestId}>
-                <TableCell component="th" scope="row">{r.requestId}</TableCell>
-                <TableCell align="right">{r.requester}</TableCell>
+            <ExpansionPanel expanded={expanded === r.requestId} onChange={this.handleChange(r.requestId)}>
+              <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
 
-                <TableCell align="right">
-                  <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleShowStakeButton(event, r.requestId)}>{r.totalFund}</button>
-                </TableCell>
-                <TableCell align="right"><ExpandMoreIcon /></TableCell>
+                <div className="card" style={rowStyles.style}>
+                    <div className="card-header" style={rowStyles.style}>
+                        <div className="row">
+                            <div className="col-3"><span className="float-left text-left">{r.requestId}</span></div>
+                            <div className="col-5"><span className="float-left text-left">{r.requester}</span></div>
+                            <div className="col-3">
+                              <span className="float-right text-right">
+                                <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleShowStakeButton(event, r.requestId)}>{r.totalFund}</button>
+                              </span>
+                            </div>
+                            <div className="col-1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-              </TableRow>
-              {this.createDetailedRow(req, index)}
-          </React.Fragment>
+                {/* <Typography color="primary">{r.requestId}</Typography>
+                <Typography color="secondary">{r.requester}</Typography>
+                <Typography >
+                  <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleShowStakeButton(event, r.requestId)}>{r.totalFund}</button>
+                </Typography> */}
+              </ExpansionPanelSummary>
+              {/* {this.createDetailedRow(req, index)} */}
+              {this.createDetailsRow(req, index)}
+              <Divider />
+              {this.createActionRow(req, index)}
+            </ExpansionPanel>
         );
       }
     }
@@ -384,37 +523,48 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
       return this.createRow(req, index)
     })
     
-    const noRequests = <TableRow><TableCell colSpan={4}>No requests found </TableCell> </TableRow>
-// console.log("requestsHTML.length - " + requestsHTML.length + "---" + this.state.compRequestStatus)
-// console.log("requestsHTML -- " + requestsHTML);
-    return noRequests;
-
-
-
+    return requestsHTML;
   }
+
+  handleChange = panel => (event, expanded) => {
+    this.setState({
+      expanded: expanded ? panel : false,
+    });
+  };
 
   render() {
 
     // <TableCell align="right">Document URI</TableCell>
     // <TableCell align="right">Expiration</TableCell>
+    const {expanded} = this.state;
 
     return (
-      <div class="main">
+      <div >
         <Paper styles={rootStyles}>
-          <Table styles={tableStyles}>
-            <TableHead>
-              <TableRow>
-                <TableCell>Request Id</TableCell>
-                <TableCell align="right">Requester</TableCell>
 
-                <TableCell align="right">Total Funds (AGI)</TableCell>
-                <TableCell align="right">+/-</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {this.generateRequests() /* {this.state.dataKeyRequestKeys.map((req, index) =>  this.createRow(req, index))} */}
-            </TableBody>
-          </Table>
+          <ExpansionPanel expanded={false}>
+            <ExpansionPanelSummary>
+
+              <div className="accordion-header card">
+                  <div className="card-header">
+                      <div className="row">
+                          <div className="col-3"><span className="float-left text-left">Request Id</span></div>
+                          <div className="col-5"><span className="float-left text-left">Requester</span></div>
+                          <div className="col-3"><span className="float-right text-right">Total Funds (AGI)</span></div>
+                          <div className="col-1">
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              {/* <Typography className={classes.heading}>Request Id</Typography>
+                <Typography className={classes.secondaryHeading}>Requester</Typography>
+                <Typography className={classes.secondaryHeading}>Total Funds (AGI)</Typography> */}
+
+            </ExpansionPanelSummary>
+          </ExpansionPanel>
+          {/* this.generateRequests() */ this.state.dataKeyRequestKeys.map((req, index) =>  this.createRow(req, index)) } 
+
         </Paper>
 
         <Dialog PaperProps={dialogStyles} open={this.state.dialogOpen} >
@@ -430,21 +580,21 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
 
         <Dialog PaperProps={dialogApproveStyles} open={this.state.dialogOpenApproveRequest} >
 
-          <div class="modal-dialog" role="document">
-                  <div class="modal-content">
-                      <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalLabel">Approve Request</h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close" onClick={this.handleApproveRequestDialogClose}>
+          <div className="modal-dialog" role="document">
+                  <div className="modal-content">
+                      <div className="modal-header">
+                          <h5 className="modal-title" id="exampleModalLabel">Approve Request</h5>
+                          <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={this.handleApproveRequestDialogClose}>
                               <span aria-hidden="true">&times;</span>
                           </button>
-                          <div class="clear"></div><br/>
+                          <div className="clear"></div><br/>
                       </div>
-                      <div class="modal-body">
+                      <div className="modal-body">
                       <ApproveRequest requestId={this.state.approveRequestId} requestExpiry={this.state.approveRequestExpiry} />
                       </div>
-                      {/* <div class="modal-footer">
-                          <button type="button" class="white" data-dismiss="modal">Close</button>
-                          <button type="button" class="blue">Submit</button>
+                      {/* <div className="modal-footer">
+                          <button type="button" className="white" data-dismiss="modal">Close</button>
+                          <button type="button" className="blue">Submit</button>
                       </div> */}
                   </div>
               </div>
@@ -453,21 +603,21 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
 
 
         <Dialog PaperProps={dialogApproveStyles} open={this.state.dialogOpenStakeRequest} >
-          <div class="modal-dialog" role="document">
-                  <div class="modal-content">
-                      <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalLabel">Stake Request</h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close" onClick={this.handleStakeRequestDialogClose}>
+          <div className="modal-dialog" role="document">
+                  <div className="modal-content">
+                      <div className="modal-header">
+                          <h5 className="modal-title" id="exampleModalLabel">Stake Request</h5>
+                          <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={this.handleStakeRequestDialogClose}>
                               <span aria-hidden="true">&times;</span>
                           </button>
-                          <div class="clear"></div><br/>
+                          <div className="clear"></div><br/>
                       </div>
-                      <div class="modal-body">
+                      <div className="modal-body">
                       <StakeRequest requestId={this.state.selectedRequestId} requestExpiry={this.state.selectedRequestExpiry} />
                       </div>
-                      {/* <div class="modal-footer">
-                          <button type="button" class="white" data-dismiss="modal">Close</button>
-                          <button type="button" class="blue">Submit</button>
+                      {/* <div className="modal-footer">
+                          <button type="button" className="white" data-dismiss="modal">Close</button>
+                          <button type="button" className="blue">Submit</button>
                       </div> */}
                   </div>
               </div>
@@ -475,21 +625,21 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
           </Dialog>
 
           <Dialog PaperProps={dialogApproveStyles} open={this.state.dialogOpenSubmitSolutionRequest} >
-          <div class="modal-dialog" role="document">
-                  <div class="modal-content">
-                      <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalLabel">Submit Solution</h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close" onClick={this.handleSubmitSolutionDialogClose}>
+          <div className="modal-dialog" role="document">
+                  <div className="modal-content">
+                      <div className="modal-header">
+                          <h5 className="modal-title" id="exampleModalLabel">Submit Solution</h5>
+                          <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={this.handleSubmitSolutionDialogClose}>
                               <span aria-hidden="true">&times;</span>
                           </button>
-                          <div class="clear"></div><br/>
+                          <div className="clear"></div><br/>
                       </div>
-                      <div class="modal-body">
+                      <div className="modal-body">
                       {/* <StakeRequest requestId={this.state.selectedRequestId} requestExpiry={this.state.selectedRequestExpiry} /> */}
 
 
-                        <div class="main-content">
-                            <div > {/*  class="main" Looks like this style has fixed width for the Tab Control...*/}
+                        <div className="main-content">
+                            <div > {/*  className="main" Looks like this style has fixed width for the Tab Control...*/}
                               <Paper style={dialogApproveStyles} elevation={5}>
                                 <p><strong>Submit Solution to Request Id - {this.state.selectedRequestId} </strong></p>
 
@@ -502,9 +652,9 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
                             </div>
                         </div>
 
-                      {/* <div class="modal-footer">
-                          <button type="button" class="white" data-dismiss="modal">Close</button>
-                          <button type="button" class="blue">Submit</button>
+                      {/* <div className="modal-footer">
+                          <button type="button" className="white" data-dismiss="modal">Close</button>
+                          <button type="button" className="blue">Submit</button>
                       </div> */}
                   </div>
               </div>
@@ -513,16 +663,16 @@ console.log("this.state.selectedRequestId - " + this.state.selectedRequestId)
           </Dialog>
 
           <Dialog PaperProps={dialogApproveStyles} open={this.state.dialogOpenShowStake} >
-           <div class="modal-dialog" role="document">
-                  <div class="modal-content">
-                      <div class="modal-header">
-                          <h5 class="modal-title" id="exampleModalLabel">Request Stake Details</h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close" onClick={this.handleShowStakeDialogClose}>
+           <div role="document"> {/* className="modal-dialog"  */}
+                  <div className="modal-content">
+                      <div className="modal-header">
+                          <h5 className="modal-title" id="exampleModalLabel">Request Stake Details</h5>
+                          <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={this.handleShowStakeDialogClose}>
                               <span aria-hidden="true">&times;</span>
                           </button>
-                          <div class="clear"></div><br/>
+                          <div className="clear"></div><br/>
                       </div>
-                      <div class="modal-body">
+                      <div className="modal-body">
                         <RequestStakeDetails requestId={this.state.selectedRequestId} />
                       </div>
                   </div>
