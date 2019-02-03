@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
-import web3 from 'web3'
-import { ContractData } from 'drizzle-react-components'
 
 // Request Table Functionality
 import Table from '@material-ui/core/Table';
@@ -17,11 +15,6 @@ import Paper from '@material-ui/core/Paper'
 import Dialog from '@material-ui/core/Dialog'
 
 //inline styles
-const styles = {
-    backgroundColor: '#F9DBDB',
-    padding: 20
-}
-
 const dialogStyles = {
   style: {
     backgroundColor: '#F9DBDB',
@@ -38,9 +31,11 @@ const rootStyles = {
 }
 
 const tableStyles = {
-  style: {
-    minWidth: 700,
-  }
+  minWidth: 450,
+}
+
+const tableColStyles = {
+padding: 2,
 }
 
 
@@ -54,8 +49,6 @@ class RequestSolution extends Component {
     this.handleDialogOpen = this.handleDialogOpen.bind(this)
     this.handleDialogClose = this.handleDialogClose.bind(this)
     this.handleVoteButton = this.handleVoteButton.bind(this)
-
-console.log("RequestSolution Constructor " + this.props.requestId);
 
     this.state = {
       requestId: this.props.requestId,
@@ -126,13 +119,14 @@ console.log("RequestSolution Constructor " + this.props.requestId);
 
       // Get all the Submitted Solutions
       var dataKeySubmitters = []
-      for(var i=0; i<r.submitters.length; i++) {
+      var i
+      for(i=0; i<r.submitters.length; i++) {
         dataKeySubmitters.push(this.contracts.ServiceRequest.methods.getSubmittedSolutionById.cacheCall(this.state.requestId, r.submitters[i]))
       }
       this.setState({dataKeySubmitters});
 
       var dataKeyStakeMembers = []
-      for(var i=0; i<r.stakeMembers.length; i++) {
+      for(i=0; i<r.stakeMembers.length; i++) {
         dataKeyStakeMembers.push(this.contracts.ServiceRequest.methods.getStakeById.cacheCall(this.state.requestId, r.stakeMembers[i]))
       }
       this.setState({dataKeyStakeMembers});
@@ -153,6 +147,7 @@ console.log("RequestSolution Constructor " + this.props.requestId);
     const stackId = this.contracts.ServiceRequest.methods["vote"].cacheSend(this.state.requestId, votedFor, {from: this.props.accounts[0]})
     if (this.props.transactionStack[stackId]) {
       const txHash = this.props.trasnactionStack[stackId]
+      console.log("txHash - " + txHash)
     }
 
   }
@@ -168,10 +163,10 @@ console.log("RequestSolution Constructor " + this.props.requestId);
         return (
           <React.Fragment>
             <TableRow key={index}> 
-                <TableCell component="th" scope="row">{this.state.submitters[index]}</TableCell>
-                <TableCell align="right">{s.solutionDocURI}</TableCell>
-                <TableCell align="right">
-                  {s.totalVotes} - {s.isSubmitted} - {s.isShortlisted} - {s.isClaimed} <br/>
+                <TableCell style={tableColStyles} component="th" scope="row">{this.state.submitters[index]}</TableCell>
+                <TableCell style={tableColStyles} align="right">{s.solutionDocURI}</TableCell>
+                <TableCell style={tableColStyles} align="right">
+                  {/* {s.totalVotes} - {s.isSubmitted} - {s.isShortlisted} - {s.isClaimed} <br/> */}
                   <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleVoteButton(event, this.state.submitters[index])}>Vote</button>
                 </TableCell>
               </TableRow>
@@ -189,9 +184,9 @@ console.log("RequestSolution Constructor " + this.props.requestId);
           <Table styles={tableStyles}>
             <TableHead>
               <TableRow>
-                <TableCell>Submitter</TableCell>
-                <TableCell align="right">Solution URI</TableCell>
-                <TableCell align="right">Vote</TableCell>
+                <TableCell style={tableColStyles}>Submitter</TableCell>
+                <TableCell style={tableColStyles} align="right">Solution URI</TableCell>
+                <TableCell style={tableColStyles} align="right">Vote</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

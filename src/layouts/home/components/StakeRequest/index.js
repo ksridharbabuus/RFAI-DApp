@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { AccountData, ContractData, ContractForm } from 'drizzle-react-components'
 import { drizzleConnect } from 'drizzle-react'
 import web3 from 'web3'
 import PropTypes from 'prop-types'
@@ -19,11 +18,6 @@ import ApproveToken from '../../components/ApproveToken'
 import DepositToken from '../../components/DepositToken'
 
 //inline styles
-const rootStyles = {
-    flexGrow: 1,
-    backgroundColor: "#aabbcc",
-}
-
 const styles = {
   backgroundColor: 'white',
   padding: 20

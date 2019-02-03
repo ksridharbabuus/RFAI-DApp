@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
-import web3 from 'web3'
 import PropTypes from 'prop-types'
 
 // Request Tabs Functionality
@@ -12,27 +11,6 @@ import Typography from '@material-ui/core/Typography';
 // Custom Components
 import CreateMember from '../../components/CreateMember'
 import ContractConfig from '../../components/ContractConfig'
-
-
-//inline styles
-const rootStyles = {
-    flexGrow: 1,
-    backgroundColor: "#aabbcc",
-}
-
-const styles = {
-  backgroundColor: 'white',
-  padding: 20
-}
-
-const dialogStyles = {
-style: {
-  backgroundColor: '#F9DBDB',
-  padding: 20
-}
-}
-
-const BN = web3.utils.BN
 
 function TabContainer(props) {
   return (

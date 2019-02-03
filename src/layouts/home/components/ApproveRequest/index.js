@@ -1,21 +1,12 @@
 import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
-import web3 from 'web3'
-import { ContractData } from 'drizzle-react-components'
 
 //components
 import Button from '@material-ui/core/Button'
-import Paper from '@material-ui/core/Paper'
-//import InvalidAddressModal from '../InvalidAddressModal'
 import Dialog from '@material-ui/core/Dialog'
 
 //inline styles
-const styles = {
-    backgroundColor: '#F9DBDB',
-    padding: 20
-}
-
 const dialogStyles = {
   style: {
     backgroundColor: '#F9DBDB',
@@ -111,6 +102,7 @@ console.log("ApproveRequest Constructor " + this.props.requestId + " &&& " + thi
       const stackId = this.contracts.ServiceRequest.methods["approveRequest"].cacheSend(this.state.requestId, this.state.endSubmission, this.state.endEvaluation, this.state.newExpiration, {from: this.props.accounts[0]})
       if (this.props.transactionStack[stackId]) {
         const txHash = this.props.trasnactionStack[stackId]
+        console.log("txHash - " + txHash);
       }
     } else if(this.state.endSubmission === 0 || parseInt(this.state.endEvaluation) <= parseInt(this.state.endSubmission) || parseInt(this.state.endSubmission) <= parseInt(this.state.blockNumber)) {
       this.setState({ alertText: `Oops! Invalid End of Submission block number.`})

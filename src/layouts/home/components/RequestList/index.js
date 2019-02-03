@@ -1,11 +1,8 @@
 import React, { Component } from 'react'
-import { AccountData, ContractData, ContractForm } from 'drizzle-react-components'
-import logo from '../../../../logo.png'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
 
 // import components
-import Network from '../../components/Network'
 import Account from '../../components/Account'
 import TransferToken from '../../components/TransferToken'
 import TokenAllowance from '../../components/TokenAllowance'

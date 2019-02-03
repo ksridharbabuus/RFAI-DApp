@@ -109,7 +109,6 @@ class WithdrawToken extends Component {
 
   handleWithdrawButton() {
     var amountBN = new BN(this.state.withdrawAmount)
-    var balanceBN = new BN(this.state.tknBalance)
     var escrrowBalanceBN = new BN(this.state.escrowBalance)
 
     if(amountBN.gt(0) && amountBN.lte(escrrowBalanceBN)) {

@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { AccountData, ContractData, ContractForm } from 'drizzle-react-components'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
 
@@ -11,12 +10,6 @@ import Typography from '@material-ui/core/Typography';
 
 // Custom Components
 import RequestListV2 from '../../components/RequestListV2'
-
-//inline styles
-const rootStyles = {
-    flexGrow: 1,
-    backgroundColor: "#aabbcc",
-}
 
 function TabContainer(props) {
   return (
@@ -75,11 +68,11 @@ class RequestsTab extends Component {
             <Tab label="Expired " />
           </Tabs>
         </AppBar>
-        {selectedTab === 0 && <Typography component="div" >Open Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
-        {selectedTab === 1 && <Typography component="div" >Approved Requests <RequestListV2  compRequestStatus="1"/> </Typography>}
-        {selectedTab === 2 && <Typography component="div" >Rejected Requests <RequestListV2  compRequestStatus="2"/> </Typography>}
-        {selectedTab === 3 && <Typography component="div" >Closed Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
-        {selectedTab === 4 && <Typography component="div" >Expired Requests <RequestListV2  compRequestStatus="0"/> </Typography>}
+        {selectedTab === 0 && <Typography component="div" ><RequestListV2  compRequestStatus="0"/> </Typography>}
+        {selectedTab === 1 && <Typography component="div" ><RequestListV2  compRequestStatus="1"/> </Typography>}
+        {selectedTab === 2 && <Typography component="div" ><RequestListV2  compRequestStatus="2"/> </Typography>}
+        {selectedTab === 3 && <Typography component="div" ><RequestListV2  compRequestStatus="4"/> </Typography>}
+        {selectedTab === 4 && <Typography component="div" ><RequestListV2  compRequestStatus="999"/> </Typography>}
       </div>
       </div>
     )

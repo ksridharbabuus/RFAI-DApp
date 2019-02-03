@@ -1,21 +1,12 @@
 import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
-import web3 from 'web3'
-import { ContractData } from 'drizzle-react-components'
 
 //components
 import Button from '@material-ui/core/Button'
-import Paper from '@material-ui/core/Paper'
-//import InvalidAddressModal from '../InvalidAddressModal'
 import Dialog from '@material-ui/core/Dialog'
 
 //inline styles
-const styles = {
-    backgroundColor: '#F9DBDB',
-    padding: 20
-}
-
 const dialogStyles = {
   style: {
     backgroundColor: '#F9DBDB',
@@ -96,9 +87,6 @@ class CreateRequest extends Component {
 
   handleCreateButton() {
 
-console.log("this.state.tokenBalance - " + this.state.tokenBalance + "<=" + this.state.value);
-console.log("this.state.value >= this.state.tokenBalance - " + (parseInt(this.state.value) >= parseInt(this.state.tokenBalance)));
-
     //value, expiration, documentURI 
     // Add Condifition of the BlockNumber Validation as well
     if(this.state.documentURI.length > 0 && parseInt(this.state.value) > 0 && parseInt(this.state.value) <= parseInt(this.state.tokenBalance)) {
@@ -106,7 +94,9 @@ console.log("this.state.value >= this.state.tokenBalance - " + (parseInt(this.st
 
       if (this.props.transactionStack[stackId]) {
         const txHash = this.props.trasnactionStack[stackId]
+        console.log("txHash - " + txHash )
       }
+
     } else if (this.state.value === 0 || parseInt(this.state.value) >= parseInt(this.state.tokenBalance)) {
       this.setState({ alertText: `Oops! You dont have enough token balance.`})
       this.handleDialogOpen()
@@ -134,7 +124,6 @@ console.log("this.state.value >= this.state.tokenBalance - " + (parseInt(this.st
             <label>Current Blocknumber: {this.state.blockNumber}</label> <br/>
             <input name="documentURI" type="text" placeholder="documentURI:" value={this.state.documentURI} onChange={this.handleRequestInputChange} /><br/><br/>
             <button type="button" class="blue" onClick={this.handleCreateButton}>Submit</button>
-            {/* <Button type="Button" variant="contained" onClick={this.handleCreateButton}>Create</Button> */}
           </form>
         {/* </Paper> */}
 

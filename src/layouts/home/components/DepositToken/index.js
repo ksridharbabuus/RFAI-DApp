@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
 import web3 from 'web3'
-import { ContractData } from 'drizzle-react-components'
 
 //components
 import Button from '@material-ui/core/Button'

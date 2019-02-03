@@ -2,12 +2,10 @@ import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
 import web3 from 'web3'
-import { ContractData } from 'drizzle-react-components'
 
 //components
 import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
-//import InvalidAddressModal from '../InvalidAddressModal'
 import Dialog from '@material-ui/core/Dialog'
 
 //inline styles
@@ -19,13 +17,6 @@ const styles = {
 const dialogStyles = {
   style: {
     backgroundColor: '#F9DBDB',
-    padding: 20
-  }
-}
-
-const dialogApproveStyles = {
-  style: {
-    backgroundColor: 'white',
     padding: 20
   }
 }

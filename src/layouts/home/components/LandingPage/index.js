@@ -4,7 +4,6 @@ import settingimg from '../../../../images/settings.svg'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
 
-import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -96,22 +95,11 @@ class LandingPage extends Component {
             <div className="top-fold">
                 <nav className="navbar navbar-singularity">
                     <div className="col-8">
-                        <a className="navbar-brand" href="https://singularitynet.io/" target="_new"><img src={logo} /></a>
+                        <a className="navbar-brand" href="https://singularitynet.io/" target="_new"><img src={logo} alt="logo"/></a>
                     </div>
                     <div className="col-4" style={{ 'text-align': 'right', 'margin-left':'auto', 'margin-right':'0', 'float': 'right',}}>
-                        {/* <img src={settingimg} onClick = {this.handleMyAccountButton} /> */}
-                        {/* <div> */}
-                            {/* <Button
-                            aria-owns={anchorEl ? 'simple-menu' : undefined}
-                            aria-haspopup="true"
-                            onClick={this.handleClick}
-                            >
-                            Open Menu
-                            </Button> */}
-
                             <IconButton className={buttonStyles} aria-label="Delete" aria-owns={anchorEl ? 'simple-menu' : undefined} onClick={this.handleClick} aria-haspopup="true" >
-                                <img src={settingimg} /> 
-                            {/* <DeleteIcon /> */}
+                                <img src={settingimg} alt="settings"/> 
                             </IconButton>
 
                             <Menu

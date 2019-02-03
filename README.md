@@ -1,6 +1,6 @@
-# Drizzle Truffle Box
+# Request for RFAI Portal
 
-This box comes with everything you need to start using smart contracts from a react app with Drizzle. It includes `drizzle`, `drizzle-react` and `drizzle-react-components` to give you a complete overview of Drizzle's capabilities.
+This DApp is for RFAI Portal where users are request for a AI Service. This project also includes necessary contracts and the DApp is built using Drizzle Framework with ReactJS. 
 
 ## Installation
 
@@ -10,9 +10,14 @@ This box comes with everything you need to start using smart contracts from a re
     npm install -g ganache-cli
     ```
 
-2. Download the box. This also takes care of installing the necessary dependencies.
+2. Clone the code from Github @ https://github.com/singnet/RFAI-DApp . Install the dependencies by running npm install Command. 
+
     ```javascript
-    truffle unbox drizzle
+    git clone https://github.com/singnet/RFAI-DApp 
+    ```
+
+    ```javascript
+    npm install
     ```
 
 3. Run the development blockchain, we recommend passing in a blocktime. Otherwise, its difficult to track things like loading indicators because Ganache will mine instantly.
@@ -27,7 +32,7 @@ This box comes with everything you need to start using smart contracts from a re
     migrate
     ```
 
-5. Run the webpack server for front-end hot reloading (outside the development console). Smart contract changes must be manually recompiled and migrated.
+5. Run the webpack server for front-end hot reloading (outside the development console). Smart contract changes must be manually recompiled and migrated. Make sure that the network & contract addresses are updated in the respective locations (build -> contracts)
     ```javascript
     // Serves the front-end on http://localhost:3000
     npm run start
@@ -42,7 +47,7 @@ This box comes with everything you need to start using smart contracts from a re
     truffle test
     ```
 
-7. Jest is included for testing React components. Compile your contracts before running Jest, or you may receive some file not found errors.
+7. Test is included for testing React components. Compile your contracts before running Jest, or you may receive some file not found errors.
     ```javascript
     // Run Jest outside of the development console for front-end component tests.
     npm run test
@@ -52,25 +57,3 @@ This box comes with everything you need to start using smart contracts from a re
     ```javascript
     npm run build
     ```
-
-## FAQ
-
-* __Where do I find more information about Drizzle?__
-
-    Check out our [documentation](http://truffleframework.com/docs/drizzle/getting-started) or any of the three repositories ([`drizzle`](https://github.com/trufflesuite/drizzle), [`drizzle-react`](https://github.com/trufflesuite/drizzle-react), [`drizzle-react-components`](https://github.com/trufflesuite/drizzle-react-components)).
-
-* __Why is there both a truffle.js file and a truffle-config.js file?__
-
-    `truffle-config.js` is a copy of `truffle.js` for compatibility with Windows development environments. Feel free to delete it if it's irrelevant to your platform.
-
-* __Where is my production build?__
-
-    The production build will be in the `build_webpack` folder. This is because Truffle outputs contract compilations to the `build` folder.
-
-* __Where can I find more documentation?__
-
-    This box is a marriage of [Truffle](http://truffleframework.com/) and a React setup created with [create-react-app](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md). Either one would be a great place to start!
-
-* __I'm trying to run `truffle unbox drizzle` in my CI environment but my build keeps failing. How can I fix it?__
-
-   We're treating warnings as errors when the env variable `CI` is set to `true`. If this is affecting your ability to unbox drizzle in your CI environment, you can set the variable `IGNORE_DRIZZLE_BOX_WARNINGS=true` and warnings won't be treated as errors anymore during unboxing.

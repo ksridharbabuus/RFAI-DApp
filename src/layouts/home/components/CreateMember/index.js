@@ -1,13 +1,10 @@
 import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
-import web3 from 'web3'
-import { ContractData } from 'drizzle-react-components'
 
 //components
 import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
-//import InvalidAddressModal from '../InvalidAddressModal'
 import Dialog from '@material-ui/core/Dialog'
 
 
@@ -136,6 +133,7 @@ console.log("contract.getFoundationMemberKeys[this.state.dataKeyMemberKeys].valu
       const stackId = this.contracts.ServiceRequest.methods["addOrUpdateFoundationMembers"].cacheSend(this.state.memberAddress, this.state.memberRole, this.state.memberStatus, {from: this.props.accounts[0]})
       if (this.props.transactionStack[stackId]) {
         const txHash = this.props.trasnactionStack[stackId]
+        console.log("txHash - " + txHash)
       }
     } else if (!this.context.drizzle.web3.utils.isAddress(this.state.memberAddress)) {
       this.setState({ alertText: `Oops! The member address isn't a correct ethereum address.`})

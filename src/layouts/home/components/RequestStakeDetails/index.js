@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
-import web3 from 'web3'
 
 // Request Table Functionality
 import Table from '@material-ui/core/Table';
@@ -14,18 +13,6 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper'
 
 //inline styles
-const styles = {
-    backgroundColor: '#F9DBDB',
-    padding: 20
-}
-
-const dialogStyles = {
-  style: {
-    backgroundColor: '#F9DBDB',
-    padding: 20
-  }
-}
-
 const rootStyles = {
   style: {
     width: '100%',

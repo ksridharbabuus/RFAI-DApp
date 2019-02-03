@@ -59,7 +59,7 @@ class TokenAllowance extends Component {
 
   render() {
     
-    var allowanceBalance = this.fromWei(this.contracts.SingularityNetToken.methods["allowance"].cacheCall(this.props.accounts[0], this.state.spenderAddress));
+    //var allowanceBalance = this.fromWei(this.contracts.SingularityNetToken.methods["allowance"].cacheCall(this.props.accounts[0], this.state.spenderAddress));
     return (
       <div>
         <Paper style={styles} elevation={5} >
@@ -67,9 +67,9 @@ class TokenAllowance extends Component {
         <p>
           <strong>Allowance Balance: </strong> 
           <ContractData contract="SingularityNetToken" method="allowance" methodArgs={[this.props.accounts[0], this.state.spenderAddress]}/> 
-          {/* this.props.tknBalance */} AGI
+           AGI
         </p>
-        <p>Converted Allowance Balance {this.state.tknAllowance}</p>
+        {/* <p>Converted Allowance Balance {this.state.tknAllowance}</p> */}
         <br/>
       </Paper>
       </div>
