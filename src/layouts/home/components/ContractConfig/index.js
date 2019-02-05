@@ -49,8 +49,8 @@ class ContractConfig extends Component {
     this.setContractConfigurations(this.props.ServiceRequest)
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.ServiceRequest !== prevProps.ServiceRequest) {
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.ServiceRequest !== prevProps.ServiceRequest || this.state.dataKeyMinStake !== prevState.dataKeyMinStake) {
         this.setState({ defaultState: false })
         this.setContractConfigurations(this.props.ServiceRequest)
     }

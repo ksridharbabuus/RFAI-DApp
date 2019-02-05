@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
+import web3 from 'web3'
 
 //components
 import Button from '@material-ui/core/Button'
@@ -43,7 +44,6 @@ class CreateRequest extends Component {
   }
 
   componentDidMount() {
-    this.setState({invalidAddress: false})
     // Get the Data Key
     const dataKeyTokenBalance = this.contracts.ServiceRequest.methods.balances.cacheCall(this.props.accounts[0]);
 
@@ -53,7 +53,7 @@ class CreateRequest extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (this.props.ServiceRequest !== prevProps.ServiceRequest || prevState.dataKeyTokenBalance !== this.state.dataKeyTokenBalance) {
-      this.setState({ defaultState: false })
+        this.setBlockNumber();
         this.setTokenBalance(this.props.ServiceRequest)
     }
   }
@@ -89,8 +89,17 @@ class CreateRequest extends Component {
 
     //value, expiration, documentURI 
     // Add Condifition of the BlockNumber Validation as well
-    if(this.state.documentURI.length > 0 && parseInt(this.state.value) > 0 && parseInt(this.state.value) <= parseInt(this.state.tokenBalance)) {
-      const stackId = this.contracts.ServiceRequest.methods["createRequest"].cacheSend(this.state.value, this.state.expiration, this.state.documentURI, {from: this.props.accounts[0]})
+
+    const docURIinBytes = this.context.drizzle.web3.utils.fromAscii(this.state.documentURI);
+
+console.log("docURIinBytes - " + docURIinBytes);    
+
+    if(this.state.documentURI.length > 0 && 
+      parseInt(this.state.value) > 0 && 
+      parseInt(this.state.value) <= parseInt(this.state.tokenBalance) && 
+      parseInt(this.state.expiration) > parseInt(this.state.blockNumber)) {
+        
+      const stackId = this.contracts.ServiceRequest.methods["createRequest"].cacheSend(this.state.value, this.state.expiration, docURIinBytes, {from: this.props.accounts[0]})
 
       if (this.props.transactionStack[stackId]) {
         const txHash = this.props.trasnactionStack[stackId]

@@ -75,12 +75,13 @@ class DepositToken extends Component {
     }
     if (this.props.ServiceRequest !== prevProps.ServiceRequest || this.state.dataKeyEscrowBalance !== prevState.dataKeyEscrowBalance) {
       this.setEscrowBalance(this.props.ServiceRequest)
+      this.setTokenAllowance(this.props.SingularityNetToken)
+      this.setTokenBalance(this.props.SingularityNetToken)
     }
   }
 
   setTokenAllowance(contract) {
     if (contract.allowance[this.state.dataKeyTokenAllowance] !== undefined && this.state.dataKeyTokenAllowance !== null) {
-console.log("contract.allowance[this.state.dataKeyTokenAllowance].value - " + contract.allowance[this.state.dataKeyTokenAllowance].value)      
       this.setState({
         tknAllowance: contract.allowance[this.state.dataKeyTokenAllowance].value
       })
@@ -89,7 +90,6 @@ console.log("contract.allowance[this.state.dataKeyTokenAllowance].value - " + co
 
   setTokenBalance(contract) {
     if (contract.balanceOf[this.state.dataKeyTokenBalance] !== undefined && this.state.dataKeyTokenBalance !== null) {
-console.log("contract.balanceOf[this.state.dataKeyTokenBalance].value - " + contract.balanceOf[this.state.dataKeyTokenBalance].value);
       this.setState({
         tknBalance: contract.balanceOf[this.state.dataKeyTokenBalance].value
       })
@@ -98,15 +98,11 @@ console.log("contract.balanceOf[this.state.dataKeyTokenBalance].value - " + cont
 
   setEscrowBalance(contract) {
     if (contract.balances[this.state.dataKeyEscrowBalance] !== undefined && this.state.dataKeyEscrowBalance !== null) {
-console.log("contract.balances[this.state.dataKeyEscrowBalance].value - " + contract.balances[this.state.dataKeyEscrowBalance].value);
       this.setState({
         escrowBalance: contract.balances[this.state.dataKeyEscrowBalance].value
       })
     }
   }
-
-
-
 
   handleAmountInputChange(event) {
     if (event.target.value.match(/^[0-9]{1,40}$/)) {
@@ -163,15 +159,7 @@ console.log("contract.balances[this.state.dataKeyEscrowBalance].value - " + cont
     }
   }
 
-  // groomWei(weiValue) {
-  //   var factor = Math.pow(10, 8)
-  //   var balance = this.context.drizzle.web3.utils.fromWei(weiValue)
-  //   balance = Math.round(balance * factor) / factor
-  //   return balance
-  // }
-
   render() {
-    // var depositGroomed = this.groomWei(this.state.depositAmount)
 
     return (
       <div>
@@ -185,7 +173,6 @@ console.log("contract.balances[this.state.dataKeyEscrowBalance].value - " + cont
             <input name="depositAmount" type="text" placeholder="Tokens to Deposit:" value={this.state.depositAmount} onChange={this.handleAmountInputChange} /><br/><br/><br/>
             <Button type="Button" variant="contained" onClick={this.handleDepositButton}>Deposit</Button>
           </form>
-          {/* <p>Tokens to deposit: {depositGroomed} </p> */}
       </Paper>
 
       <Dialog PaperProps={dialogStyles} open={this.state.dialogOpen} >

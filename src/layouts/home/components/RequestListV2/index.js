@@ -111,7 +111,12 @@ class RequestListV2 extends Component {
       approveRequestId: 0,
       approveRequestExpiry: 0,
       selectedRequestId: 0,
-      selectedRequestExpiry: 0
+      selectedRequestExpiry: 0,
+
+      dataKeyMemberKeys: null,
+      foundationMembers: [],
+      isFoundationMember: false,
+      foundationMemberRole: 0
     }
 
     this.setBlockNumber();
@@ -123,6 +128,10 @@ class RequestListV2 extends Component {
     this.setState({dataKeyNextRequestId})
     this.setRequests(this.props.ServiceRequest)
 
+    const dataKeyMemberKeys = this.contracts.ServiceRequest.methods.getFoundationMemberKeys.cacheCall();
+    this.setState({dataKeyMemberKeys})
+    this.setFoundationMembers(this.props.ServiceRequest)
+
     ReactDOM.findDOMNode(this).scrollIntoView();
   }
 
@@ -132,6 +141,11 @@ class RequestListV2 extends Component {
       this.setBlockNumber()
       this.setRequests(this.props.ServiceRequest)
     }
+
+    if (this.props.ServiceRequest !== prevProps.ServiceRequest || this.state.dataKeyMemberKeys !== prevState.dataKeyMemberKeys) {
+      this.setFoundationMembers(this.props.ServiceRequest)
+    }
+
   }
 
   setBlockNumber() {
@@ -152,6 +166,21 @@ class RequestListV2 extends Component {
         dataKeyRequestKeys.push(this.contracts.ServiceRequest.methods.requests.cacheCall(i))
       }
       this.setState({dataKeyRequestKeys});
+
+    }
+  }
+
+  setFoundationMembers(contract) {
+
+    if (contract.getFoundationMemberKeys[this.state.dataKeyMemberKeys] !== undefined && this.state.dataKeyMemberKeys !== null) {
+
+      this.setState({
+        foundationMembers: contract.getFoundationMemberKeys[this.state.dataKeyMemberKeys].value
+      }, () => {
+        const exists = this.state.foundationMembers.some(m => m === this.props.accounts[0])
+        this.setState({isFoundationMember : exists});
+      });
+
 
     }
   }
@@ -202,9 +231,9 @@ class RequestListV2 extends Component {
   }
 
   handleSubmitSolution2Button() {
-    
+    const docURIinBytes = this.context.drizzle.web3.utils.fromAscii(this.state.solutionDocumentURI);
     if(this.state.solutionDocumentURI.length > 0) {
-      const stackId = this.contracts.ServiceRequest.methods["createOrUpdateSolutionProposal"].cacheSend(this.state.selectedRequestId, this.state.solutionDocumentURI, {from: this.props.accounts[0]})
+      const stackId = this.contracts.ServiceRequest.methods["createOrUpdateSolutionProposal"].cacheSend(this.state.selectedRequestId, docURIinBytes, {from: this.props.accounts[0]})
       if (this.props.transactionStack[stackId]) {
         const txHash = this.props.trasnactionStack[stackId]
         console.log("txHash - " + txHash);
@@ -270,8 +299,8 @@ class RequestListV2 extends Component {
             <ExpansionPanelActions>
                 <div className="row">
                     <div className="col">
-                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleApproveButton(event, r.requestId, r.expiration)}>Approve Request</button>
-                        <button className="red float-right ml-4" onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                   
+                        <button className="blue float-right ml-4" disabled={!this.state.isFoundationMember} data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleApproveButton(event, r.requestId, r.expiration)}>Approve Request</button>
+                        <button className="red float-right ml-4" disabled={!this.state.isFoundationMember} onClick={event => this.handleRejectButton(event, r.requestId)}>Reject Request</button>                                   
                     </div>
                 </div>
             </ExpansionPanelActions>
@@ -317,14 +346,14 @@ class RequestListV2 extends Component {
     if (this.props.ServiceRequest.requests[req] !== undefined && req !== null) {
 
       var r = this.props.ServiceRequest.requests[req].value;
-
+      var docURI = this.context.drizzle.web3.utils.toAscii(r.documentURI);
       if(this.state.compRequestStatus === "999" && r.status === "0" && parseInt(r.expiration) < parseInt(this.state.blockNumber)) {
         return (
           <ExpansionPanelDetails>
               <div className="row">
                   <div className="col-8">
                       <div>Requester: <span>{r.requester}</span></div>
-                      <div>documentURI: <span>{r.documentURI}</span></div>
+                      <div>documentURI: <span>{docURI}</span></div>
                       <div>Expiry: <span>{r.expiration}</span></div>
                   </div>                                        
               </div>
@@ -336,7 +365,7 @@ class RequestListV2 extends Component {
                 <div className="row">
                     <div className="col-8">
                         <div>Requester: <span>{r.requester}</span></div>
-                        <div>documentURI: <span>{r.documentURI}</span></div>
+                        <div>documentURI: <span>{docURI}</span></div>
                         <div>Expiry: <span>{r.expiration}</span></div>
                     </div>                                        
                 </div>
@@ -348,7 +377,7 @@ class RequestListV2 extends Component {
                 <div className="row">
                     <div className="col-8">
                         <div>Requester: <span>{r.requester}</span></div>
-                        <div>documentURI: <span>{r.documentURI}</span></div>
+                        <div>documentURI: <span>{docURI}</span></div>
                         <div>Expiry: <span>{r.expiration}</span></div>
                     </div>                                        
                 </div>
@@ -366,7 +395,7 @@ class RequestListV2 extends Component {
                 <div className="row">
                     <div className="col-8">
                         <div>Requester: <span>{r.requester}</span></div>
-                        <div>documentURI: <span>{r.documentURI}</span></div>
+                        <div>documentURI: <span>{docURI}</span></div>
                         <div>Expiry: <span>{r.expiration}</span></div>
                     </div>                                        
                 </div>
@@ -378,7 +407,7 @@ class RequestListV2 extends Component {
                 <div className="row">
                     <div className="col-8">
                         <div>Requester: <span>{r.requester}</span></div>
-                        <div>documentURI: <span>{r.documentURI}</span></div>
+                        <div>documentURI: <span>{docURI}</span></div>
                         <div>Expiry: <span>{r.expiration}</span></div>
                     </div>                                        
                 </div>
