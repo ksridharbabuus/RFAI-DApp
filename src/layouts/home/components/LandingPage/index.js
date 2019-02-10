@@ -97,8 +97,8 @@ class LandingPage extends Component {
                     <div className="col-8">
                         <a className="navbar-brand" href="https://singularitynet.io/" target="_new"><img src={logo} alt="logo"/></a>
                     </div>
-                    <div className="col-4" style={{ 'text-align': 'right', 'margin-left':'auto', 'margin-right':'0', 'float': 'right',}}>
-                            <IconButton className={buttonStyles} aria-label="Delete" aria-owns={anchorEl ? 'simple-menu' : undefined} onClick={this.handleClick} aria-haspopup="true" >
+                    <div className="col-4" style={{ 'textAlign': 'right', 'marginLeft':'auto', 'marginRight':'0', 'float': 'right',}}>
+                            <IconButton style={buttonStyles} aria-label="Delete" aria-owns={anchorEl ? 'simple-menu' : undefined} onClick={this.handleClick} aria-haspopup="true" >
                                 <img src={settingimg} alt="settings"/> 
                             </IconButton>
 

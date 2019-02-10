@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
+import web3 from 'web3'
 
 // Request Table Functionality
 import Table from '@material-ui/core/Table';
@@ -11,6 +12,7 @@ import TableRow from '@material-ui/core/TableRow';
 
 //components
 import Paper from '@material-ui/core/Paper'
+import HelperFunctions from '../HelperFunctions'
 
 //inline styles
 const rootStyles = {
@@ -25,6 +27,7 @@ const tableStyles = {
     minWidth: 450,
 }
 
+//const BN = web3.utils.BN
 
 class RequestStakeDetails extends Component {
   constructor(props, context) {
@@ -32,6 +35,7 @@ class RequestStakeDetails extends Component {
 
     this.contracts = context.drizzle.contracts
     this.context = context
+    this.helperFunctions = new HelperFunctions();
 
     this.state = {
       requestId: this.props.requestId,
@@ -111,7 +115,7 @@ class RequestStakeDetails extends Component {
           <React.Fragment>
             <TableRow key={index}> 
                 <TableCell component="th" scope="row">{this.state.stakeMembers[index]}</TableCell>
-                <TableCell align="right">{s.stake}</TableCell>
+                <TableCell align="right">{this.helperFunctions.fromWei(s.stake)}</TableCell>
               </TableRow>
           </React.Fragment>
         );

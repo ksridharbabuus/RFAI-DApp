@@ -22,6 +22,7 @@ class ApproveRequest extends Component {
     this.context = context
 
     this.handleRequestInputChange = this.handleRequestInputChange.bind(this)
+    this.handleBlockNumInputChange = this.handleBlockNumInputChange.bind(this)
 
     this.handleDialogOpen = this.handleDialogOpen.bind(this)
     this.handleDialogClose = this.handleDialogClose.bind(this)
@@ -81,6 +82,16 @@ console.log("ApproveRequest Constructor " + this.props.requestId + " &&& " + thi
     this.setState({ [event.target.name]: event.target.value })
   }
 
+  handleBlockNumInputChange(event) {
+    if (event.target.value.match(/^[0-9]{1,40}$/)) {
+      this.setState({ [event.target.name]: event.target.value })
+    } else if(event.target.value === '') {
+      this.setState({ [event.target.name]: '' })
+    } else {
+      // Just Ignore the value
+    }
+  }
+
   handleDialogOpen() {
     this.setState({ dialogOpen: true })
   }
@@ -92,11 +103,11 @@ console.log("ApproveRequest Constructor " + this.props.requestId + " &&& " + thi
   handleApproveButton() {
 
     // Do client side validations before calling approve request    
-    if(parseInt(this.state.endSubmission) > 0 && parseInt(this.state.endSubmission) > parseInt(this.state.blockNumber) && 
-      parseInt(this.state.endEvaluation) > 0  && parseInt(this.state.endEvaluation) > parseInt(this.state.blockNumber) && 
-      parseInt(this.state.newExpiration) > 0 && parseInt(this.state.newExpiration) > parseInt(this.state.blockNumber) && 
-      parseInt(this.state.endEvaluation) > parseInt(this.state.endSubmission) && 
-      parseInt(this.state.newExpiration) > parseInt(this.state.endEvaluation))
+    if(parseInt(this.state.endSubmission,10) > 0 && parseInt(this.state.endSubmission,10) > parseInt(this.state.blockNumber,10) && 
+      parseInt(this.state.endEvaluation,10) > 0  && parseInt(this.state.endEvaluation,10) > parseInt(this.state.blockNumber,10) && 
+      parseInt(this.state.newExpiration,10) > 0 && parseInt(this.state.newExpiration,10) > parseInt(this.state.blockNumber,10) && 
+      parseInt(this.state.endEvaluation,10) > parseInt(this.state.endSubmission,10) && 
+      parseInt(this.state.newExpiration,10) > parseInt(this.state.endEvaluation,10))
     {
       // Call Approve Method to approve the request
       const stackId = this.contracts.ServiceRequest.methods["approveRequest"].cacheSend(this.state.requestId, this.state.endSubmission, this.state.endEvaluation, this.state.newExpiration, {from: this.props.accounts[0]})
@@ -104,13 +115,13 @@ console.log("ApproveRequest Constructor " + this.props.requestId + " &&& " + thi
         const txHash = this.props.trasnactionStack[stackId]
         console.log("txHash - " + txHash);
       }
-    } else if(this.state.endSubmission === 0 || parseInt(this.state.endEvaluation) <= parseInt(this.state.endSubmission) || parseInt(this.state.endSubmission) <= parseInt(this.state.blockNumber)) {
+    } else if(this.state.endSubmission === 0 || parseInt(this.state.endEvaluation,10) <= parseInt(this.state.endSubmission,10) || parseInt(this.state.endSubmission,10) <= parseInt(this.state.blockNumber,10)) {
       this.setState({ alertText: `Oops! Invalid End of Submission block number.`})
       this.handleDialogOpen()
-    } else if(this.state.endEvaluation === 0 || parseInt(this.state.newExpiration) <= parseInt(this.state.endEvaluation) || parseInt(this.state.endEvaluation) <= parseInt(this.state.blockNumber)) {
+    } else if(this.state.endEvaluation === 0 || parseInt(this.state.newExpiration,10) <= parseInt(this.state.endEvaluation,10) || parseInt(this.state.endEvaluation,10) <= parseInt(this.state.blockNumber,10)) {
       this.setState({ alertText: `Oops! Invalid End of Evaluation block number.`})
       this.handleDialogOpen()
-    } else if(this.state.newExpiration === 0 || parseInt(this.state.newExpiration) <= parseInt(this.state.blockNumber)) {
+    } else if(this.state.newExpiration === 0 || parseInt(this.state.newExpiration,10) <= parseInt(this.state.blockNumber,10)) {
       this.setState({ alertText: `Oops! Invalid Expiration block number.`})
       this.handleDialogOpen()
     } else {
@@ -126,9 +137,9 @@ console.log("ApproveRequest Constructor " + this.props.requestId + " &&& " + thi
       <div>
         {/* <Paper style={styles} elevation={5}> */}
           <form className="pure-form pure-form-stacked">
-            <input name="endSubmission" type="text" placeholder="End of Submission:" value={this.state.endSubmission} onChange={this.handleRequestInputChange} /> <br/><br/>
-            <input name="endEvaluation" type="text" placeholder="End of Evaluation:" value={this.state.endEvaluation} onChange={this.handleRequestInputChange} /> <br /><br/>
-            <input name="newExpiration" type="text" placeholder="Expiration block number:" value={this.state.newExpiration} onChange={this.handleRequestInputChange} /> <br />
+            <input name="endSubmission" type="number" placeholder="End of Submission:" value={this.state.endSubmission} min={this.state.blockNumber} onChange={this.handleBlockNumInputChange} /> <br/><br/>
+            <input name="endEvaluation" type="number" placeholder="End of Evaluation:" value={this.state.endEvaluation} min={this.state.blockNumber} onChange={this.handleBlockNumInputChange} /> <br /><br/>
+            <input name="newExpiration" type="number" placeholder="Expiration block number:" value={this.state.newExpiration} min={this.state.blockNumber} onChange={this.handleBlockNumInputChange} /> <br />
             <label>Current Blocknumber: {this.state.blockNumber}</label> <br/>
             <button type="button" class="blue" onClick={this.handleApproveButton}>Submit</button>
             {/* <Button type="Button" variant="contained" onClick={this.handleApproveButton}>Create</Button> */}

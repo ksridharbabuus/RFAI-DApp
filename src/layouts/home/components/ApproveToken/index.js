@@ -7,6 +7,7 @@ import web3 from 'web3'
 import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
 import Dialog from '@material-ui/core/Dialog'
+import HelperFunctions from '../HelperFunctions'
 
 //inline styles
 const styles = {
@@ -28,12 +29,14 @@ class ApproveToken extends Component {
     super(props)
 
     this.contracts = context.drizzle.contracts
+    this.helperFunctions = new HelperFunctions();
 
     this.handleAmountInputChange = this.handleAmountInputChange.bind(this)
     this.handleDialogOpen = this.handleDialogOpen.bind(this)
     this.handleDialogClose = this.handleDialogClose.bind(this)
     this.handleApproveButton = this.handleApproveButton.bind(this)
-    this.setTXParamValue = this.setTXParamValue.bind(this)
+
+    // this.setTXParamValue = this.setTXParamValue.bind(this)
 
     // this.props.tknSpender
     this.state = {
@@ -68,21 +71,15 @@ console.log("contract.allowance[this.state.dataKeyTokenAllowance].value - " + co
     }
   }
 
-
   handleAmountInputChange(event) {
-    if (event.target.value.match(/^[0-9]{1,40}$/)) {
-      var amount = new BN(event.target.value)
-      if (amount.gte(0)) {
-        this.setState({ [event.target.name]: amount.toString() })
-        this.setTXParamValue(amount)
-      } else {
-        this.setState({ [event.target.name]: '' })
-        this.setTXParamValue(0)
-      }
+    //  Fixed to two decimal places
+    if (event.target.value.match(/^\d+(\.\d{1,2})?$/)) {
+      this.setState({ [event.target.name]: event.target.value })
+    } else if(event.target.value === '') {
+      this.setState({ [event.target.name]: '' })
     } else {
-        this.setState({ [event.target.name]: '' })
-        this.setTXParamValue(0)
-      }
+      // Just Ignore the value
+    }
   }
 
   handleDialogOpen() {
@@ -94,37 +91,37 @@ console.log("contract.allowance[this.state.dataKeyTokenAllowance].value - " + co
   }
 
   handleApproveButton() {
-    var amountBN = new BN(this.state.approveAmount)
+    var zeroBN = new BN(0)
+    var approveAmountBN = new BN(this.helperFunctions.toWei(this.state.approveAmount))
+    var allowanceBN = new BN(this.state.tknAllowance)
 
-    if(amountBN.gt(0)) {
-      this.contracts.SingularityNetToken.methods["approve"].cacheSend(this.state.spenderAddress, this.state.approveAmount, {from: this.props.accounts[0]})
-    } else {
+    if(approveAmountBN.gt(zeroBN) && approveAmountBN.gt(allowanceBN)) {
+      this.contracts.SingularityNetToken.methods["approve"].cacheSend(this.state.spenderAddress, approveAmountBN.toString(), {from: this.props.accounts[0]})
+    } else if(approveAmountBN.lte(allowanceBN)) {
+      this.setState({ alertText: 'Oops! Approval amount should be more than current allowances.'})
+      this.handleDialogOpen()
+    }
+    else {
       this.setState({ alertText: 'Oops! Something went wrong. Try checking your transaction details.'})
       this.handleDialogOpen()
     }
   }
 
-  setTXParamValue(_value) {
-    if (web3.utils.isBN(_value)) {
-      this.setState({
-        approveAmount: _value.toString()
-      })
-    } else {
-      this.setState({
-        approveAmount: ''
-      })
-    }
-  }
-
-  // groomWei(weiValue) {
-  //   var factor = Math.pow(10, 8)
-  //   var balance = this.context.drizzle.web3.utils.fromWei(weiValue)
-  //   balance = Math.round(balance * factor) / factor
-  //   return balance
+  // setTXParamValue(_value) {
+  //   if (web3.utils.isBN(_value)) {
+  //     this.setState({
+  //       approveAmount: _value.toString()
+  //     })
+  //   } else {
+  //     this.setState({
+  //       approveAmount: ''
+  //     })
+  //   }
   // }
 
   render() {
-    // var approveGroomed = this.groomWei(this.state.approveAmount)
+
+    const tknAllowance = this.helperFunctions.fromWei(this.state.tknAllowance)
 
     return (
       <div>
@@ -132,8 +129,8 @@ console.log("contract.allowance[this.state.dataKeyTokenAllowance].value - " + co
           <p><strong>Approve Tokens to spend by RFAI Escrow Contract </strong></p>
 
           <form className="pure-form pure-form-stacked">
-            <p>Approved allowance: {this.state.tknAllowance} AGI</p><br></br>
-            <input name="approveAmount" type="text" placeholder="Tokens to Approve:" value={this.state.approveAmount} onChange={this.handleAmountInputChange} /> <br/><br/><br/>
+            <p>Approved allowance: {tknAllowance} AGI</p><br></br>
+            <input name="approveAmount" type="number" placeholder="Tokens to Approve:" min={0} value={this.state.approveAmount} onChange={this.handleAmountInputChange} /> <br/><br/><br/>
             <Button type="Button" variant="contained" onClick={this.handleApproveButton}>Approve</Button>
           </form>
           {/* <p>Tokens to approve: {approveGroomed} </p> */}

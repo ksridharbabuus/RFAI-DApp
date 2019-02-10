@@ -9,6 +9,7 @@ import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
 //import InvalidAddressModal from '../InvalidAddressModal'
 import Dialog from '@material-ui/core/Dialog'
+import HelperFunctions from '../HelperFunctions'
 
 //inline styles
 const styles = {
@@ -30,6 +31,7 @@ class TransferToken extends Component {
     super(props)
 
     this.contracts = context.drizzle.contracts
+    this.helperFunctions = new HelperFunctions();
 
     this.handleRecipientInputChange = this.handleRecipientInputChange.bind(this)
     this.handleAmountInputChange = this.handleAmountInputChange.bind(this)
@@ -37,7 +39,8 @@ class TransferToken extends Component {
     this.handleDialogClose = this.handleDialogClose.bind(this)
     this.handleTransferButton = this.handleTransferButton.bind(this)
     this.handleSetMaxButton = this.handleSetMaxButton.bind(this)
-    this.setTXParamValue = this.setTXParamValue.bind(this)
+    
+    // this.setTXParamValue = this.setTXParamValue.bind(this)
 
     this.state = {
       dialogOpen: false,
@@ -56,19 +59,14 @@ class TransferToken extends Component {
   }
 
   handleAmountInputChange(event) {
-    if (event.target.value.match(/^[0-9]{1,40}$/)) {
-      var amount = new BN(event.target.value)
-      if (amount.gte(0)) {
-        this.setState({ [event.target.name]: amount.toString() })
-        this.setTXParamValue(amount)
-      } else {
-        this.setState({ [event.target.name]: '' })
-        this.setTXParamValue(0)
-      }
+    //  Fixed to two decimal places
+    if (event.target.value.match(/^\d+(\.\d{1,2})?$/)) {
+      this.setState({ [event.target.name]: event.target.value })
+    } else if(event.target.value === '') {
+      this.setState({ [event.target.name]: '' })
     } else {
-        this.setState({ [event.target.name]: '' })
-        this.setTXParamValue(0)
-      }
+      // Just Ignore the value
+    }
   }
 
   handleDialogOpen() {
@@ -80,7 +78,7 @@ class TransferToken extends Component {
   }
 
   handleTransferButton() {
-    var amountBN = new BN(this.state.transferAmount)
+    var amountBN = new BN(this.helperFunctions.toWei(this.state.transferAmount)) 
     var balanceBN = new BN(this.props.tknBalance)
     if(this.context.drizzle.web3.utils.isAddress(this.state.recipientAddress) && amountBN.lte(balanceBN)) {
       this.contracts.SingularityNetToken.methods["transfer"].cacheSend(this.state.recipientAddress, this.state.transferAmount, {from: this.props.accounts[0]})
@@ -102,27 +100,19 @@ class TransferToken extends Component {
     })
   }
 
-  setTXParamValue(_value) {
-    if (web3.utils.isBN(_value)) {
-      this.setState({
-        transferAmount: _value.toString()
-      })
-    } else {
-      this.setState({
-        transferAmount: ''
-      })
-    }
-  }
-
-  groomWei(weiValue) {
-    var factor = Math.pow(10, 8)
-    var balance = this.context.drizzle.web3.utils.fromWei(weiValue)
-    balance = Math.round(balance * factor) / factor
-    return balance
-  }
+  // setTXParamValue(_value) {
+  //   if (web3.utils.isBN(_value)) {
+  //     this.setState({
+  //       transferAmount: _value.toString()
+  //     })
+  //   } else {
+  //     this.setState({
+  //       transferAmount: ''
+  //     })
+  //   }
+  // }
 
   render() {
-    var transferGroomed = this.groomWei(this.state.transferAmount)
 
     return (
       <div>
@@ -138,7 +128,7 @@ class TransferToken extends Component {
             <input name="transferAmount" type="text" placeholder="token to transfer:" value={this.state.transferAmount} onChange={this.handleAmountInputChange} />
             <Button type="Button" variant="contained" onClick={this.handleTransferButton}>Transfer</Button>
           </form>
-          <p>Tokens to transfer: {transferGroomed} </p>
+
       </Paper>
 
       <Dialog PaperProps={dialogStyles} open={this.state.dialogOpen} >

@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
+import web3 from 'web3'
 
 //components
 import Button from '@material-ui/core/Button'
@@ -22,13 +23,14 @@ import StakeRequest from '../../components/StakeRequest'
 import RequestSolution from '../../components/RequestSolution'
 
 import RequestStakeDetails from '../../components/RequestStakeDetails'
+import HelperFunctions from '../HelperFunctions'
 
 
 //inline styles
-const styles = {
-  backgroundColor: '#F9DBDB',
-  padding: 20
-}
+// const styles = {
+//   backgroundColor: '#F9DBDB',
+//   padding: 20
+// }
 
 const dialogStyles = {
   style: {
@@ -58,6 +60,8 @@ const rowStyles = {
   }
 }
 
+const BN = web3.utils.BN
+
 class RequestListV2 extends Component {
 
   constructor(props, context) {
@@ -65,6 +69,7 @@ class RequestListV2 extends Component {
 
     this.contracts = context.drizzle.contracts
     this.context = context
+    this.helperFunctions = new HelperFunctions();
 
     this.handleApproveButton = this.handleApproveButton.bind(this)
 
@@ -279,12 +284,13 @@ class RequestListV2 extends Component {
     this.setState( {dialogOpenShowStake: false});
   }
 
+
   createActionRow(req, index) {
 
     if (this.props.ServiceRequest.requests[req] !== undefined && req !== null) {
       var r = this.props.ServiceRequest.requests[req].value;
 
-      if(this.state.compRequestStatus === "999" && r.status === "0" && parseInt(r.expiration) < parseInt(this.state.blockNumber)) {
+      if(this.state.compRequestStatus === "999" && r.status === "0" && parseInt(r.expiration,10) < parseInt(this.state.blockNumber,10)) {
         return (
             <ExpansionPanelActions>
                 <div className="row">
@@ -347,7 +353,7 @@ class RequestListV2 extends Component {
 
       var r = this.props.ServiceRequest.requests[req].value;
       var docURI = this.context.drizzle.web3.utils.toAscii(r.documentURI);
-      if(this.state.compRequestStatus === "999" && r.status === "0" && parseInt(r.expiration) < parseInt(this.state.blockNumber)) {
+      if(this.state.compRequestStatus === "999" && r.status === "0" && parseInt(r.expiration,10) < parseInt(this.state.blockNumber,10)) {
         return (
           <ExpansionPanelDetails>
               <div className="row">
@@ -439,7 +445,7 @@ class RequestListV2 extends Component {
                             <div className="col-5"><span className="float-left text-left">{r.requester}</span></div>
                             <div className="col-3">
                               <span className="float-right text-right">
-                                <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleShowStakeButton(event, r.requestId)}>{r.totalFund}</button>
+                                <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleShowStakeButton(event, r.requestId)}>{this.helperFunctions.fromWei(r.totalFund)}</button>
                               </span>
                             </div>
                             <div className="col-1">
@@ -451,7 +457,7 @@ class RequestListV2 extends Component {
                 {/* <Typography color="primary">{r.requestId}</Typography>
                 <Typography color="secondary">{r.requester}</Typography>
                 <Typography >
-                  <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleShowStakeButton(event, r.requestId)}>{r.totalFund}</button>
+                  <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleShowStakeButton(event, r.requestId)}>{this.helperFunctions.fromWei(r.totalFund)}</button>
                 </Typography> */}
               </ExpansionPanelSummary>
               {this.createDetailsRow(req, index)}

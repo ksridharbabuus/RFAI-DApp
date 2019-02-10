@@ -13,9 +13,9 @@ import Paper from '@material-ui/core/Paper'
 import Dialog from '@material-ui/core/Dialog'
 
 // Custom Components
-// import RequestListV2 from '../../components/RequestListV2'
 import ApproveToken from '../../components/ApproveToken'
 import DepositToken from '../../components/DepositToken'
+import HelperFunctions from '../HelperFunctions'
 
 //inline styles
 const styles = {
@@ -50,18 +50,26 @@ class StakeRequest extends Component {
     super(props)
 
     this.contracts = context.drizzle.contracts;
+    this.helperFunctions = new HelperFunctions();
 
     this.handleAmountInputChange = this.handleAmountInputChange.bind(this)
     this.handleDialogOpen = this.handleDialogOpen.bind(this)
     this.handleDialogClose = this.handleDialogClose.bind(this)
     this.handleStakeButton = this.handleStakeButton.bind(this)
-    this.setTXParamValue = this.setTXParamValue.bind(this)
+
+    // this.setTXParamValue = this.setTXParamValue.bind(this)
 
     this.state = {
       requestId: this.props.requestId,
       dataKeyEscrowBalance: null,
       escrowBalance: 0,
       stakeAmount: 0,
+      dataKeyMinStake: null,
+      dataKeyMaxStakers: null,
+      dataKeyNextRequestId: null,
+      dataKeyOwner: null,
+      minStake: null,
+      maxStakers: null,
       selectedTab: 0,
       dialogOpen: false,
       alertText: ''
@@ -73,12 +81,28 @@ class StakeRequest extends Component {
     const dataKeyEscrowBalance = this.contracts.ServiceRequest.methods.balances.cacheCall(this.props.accounts[0]);
     this.setState({dataKeyEscrowBalance})
     this.setEscrowBalance(this.props.ServiceRequest)
+
+    const dataKeyMinStake = this.contracts.ServiceRequest.methods.minStake.cacheCall();
+    this.setState({dataKeyMinStake})
+
+    const dataKeyMaxStakers = this.contracts.ServiceRequest.methods.maxStakers.cacheCall();
+    this.setState({dataKeyMaxStakers})
+
+    const dataKeyOwner  = this.contracts.ServiceRequest.methods.owner.cacheCall();
+    this.setState({dataKeyOwner})
+    this.setContractConfigurations(this.props.ServiceRequest)
+
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (this.props.ServiceRequest !== prevProps.ServiceRequest || this.state.dataKeyEscrowBalance !== prevState.dataKeyEscrowBalance) {
       this.setEscrowBalance(this.props.ServiceRequest)
     }
+
+    if (this.props.ServiceRequest !== prevProps.ServiceRequest || this.state.dataKeyMinStake !== prevState.dataKeyMinStake) {
+      this.setContractConfigurations(this.props.ServiceRequest)
+    }
+
   }
 
   setEscrowBalance(contract) {
@@ -90,25 +114,41 @@ console.log("contract.balances[this.state.dataKeyEscrowBalance].value - " + cont
     }
   }
 
+  setContractConfigurations(contract) {
+
+    if (contract.minStake[this.state.dataKeyMinStake] !== undefined && this.state.dataKeyMinStake !== null) {
+      this.setState({
+        minStake: contract.minStake[this.state.dataKeyMinStake].value
+      })
+    }
+
+    if (contract.maxStakers[this.state.dataKeyMaxStakers] !== undefined && this.state.dataKeyMaxStakers !== null) {
+      this.setState({
+        maxStakers: contract.maxStakers[this.state.dataKeyMaxStakers].value
+      })
+    }
+
+    if (contract.owner[this.state.dataKeyOwner] !== undefined && this.state.dataKeyOwner !== null) {
+      this.setState({
+        owner: contract.owner[this.state.dataKeyOwner].value
+      })
+    }
+  }
+
   handleChange = (event, value) => {
     this.setState({ selectedTab: value });
   console.log("Stake Request selectedTab - " + value);
   };
 
   handleAmountInputChange(event) {
-    if (event.target.value.match(/^[0-9]{1,40}$/)) {
-      var amount = new BN(event.target.value)
-      if (amount.gte(0)) {
-        this.setState({ [event.target.name]: amount.toString() })
-        this.setTXParamValue(amount)
-      } else {
-        this.setState({ [event.target.name]: '' })
-        this.setTXParamValue(0)
-      }
+    //  Fixed to two decimal places
+    if (event.target.value.match(/^\d+(\.\d{1,2})?$/)) {
+      this.setState({ [event.target.name]: event.target.value })
+    } else if(event.target.value === '') {
+      this.setState({ [event.target.name]: '' })
     } else {
-        this.setState({ [event.target.name]: '' })
-        this.setTXParamValue(0)
-      }
+      // Just Ignore the value
+    }
   }
 
   handleDialogOpen() {
@@ -120,31 +160,37 @@ console.log("contract.balances[this.state.dataKeyEscrowBalance].value - " + cont
   }
 
   handleStakeButton() {
-    var amountBN = new BN(this.state.stakeAmount)
+    var zeroBN = new BN(0)
+    var stakeAmountBN = new BN(this.helperFunctions.toWei(this.state.stakeAmount))
+    var minStakeBN = new BN(this.state.minStake)
     var escrowBalanceBN = new BN(this.state.escrowBalance)
 
-    if(amountBN.gt(0) && amountBN.lte(escrowBalanceBN)) {
-      this.contracts.ServiceRequest.methods["addFundsToRequest"].cacheSend(this.state.requestId, this.state.stakeAmount, {from: this.props.accounts[0]})
-    } else if (amountBN.gt(escrowBalanceBN)) {
+    if(stakeAmountBN.gt(zeroBN) && stakeAmountBN.lte(escrowBalanceBN) && stakeAmountBN.gte(minStakeBN)) {
+      this.contracts.ServiceRequest.methods["addFundsToRequest"].cacheSend(this.state.requestId, stakeAmountBN.toString(), {from: this.props.accounts[0]})
+    } else if (stakeAmountBN.gt(escrowBalanceBN)) {
       this.setState({ alertText: 'Oops! You are trying to transfer more than you have in Escrow.'})
       this.handleDialogOpen()
-    } else {
+    } else if(stakeAmountBN.lt(minStakeBN)) {
+      const errText = 'Oops! You need to have min stake - ' + this.state.minStake + ' .'
+      this.setState({ alertText: errText })
+      this.handleDialogOpen()
+    }else {
       this.setState({ alertText: 'Oops! Something went wrong. Try checking your transaction details.'})
       this.handleDialogOpen()
     }
   }
 
-  setTXParamValue(_value) {
-    if (web3.utils.isBN(_value)) {
-      this.setState({
-        stakeAmount: _value.toString()
-      })
-    } else {
-      this.setState({
-        stakeAmount: ''
-      })
-    }
-  }
+  // setTXParamValue(_value) {
+  //   if (web3.utils.isBN(_value)) {
+  //     this.setState({
+  //       stakeAmount: _value.toString()
+  //     })
+  //   } else {
+  //     this.setState({
+  //       stakeAmount: ''
+  //     })
+  //   }
+  // }
 
   stakeFragment() {
     return (

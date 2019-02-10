@@ -7,6 +7,9 @@ import web3 from 'web3'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
 
+import TransactionResult from '../TransactionResult'
+import HelperFunctions from '../HelperFunctions'
+
 //inline styles
 const dialogStyles = {
   style: {
@@ -15,14 +18,19 @@ const dialogStyles = {
   }
 }
 
+const BN = web3.utils.BN
+
 class CreateRequest extends Component {
   constructor(props, context) {
     super(props)
 
     this.contracts = context.drizzle.contracts
     this.context = context
+    this.helperFunctions = new HelperFunctions();
 
     this.handleRequestInputChange = this.handleRequestInputChange.bind(this)
+    this.handleAmountInputChange = this.handleAmountInputChange.bind(this)
+    this.handleBlockNumInputChange = this.handleBlockNumInputChange.bind(this)
 
     this.handleDialogOpen = this.handleDialogOpen.bind(this)
     this.handleDialogClose = this.handleDialogClose.bind(this)
@@ -30,12 +38,14 @@ class CreateRequest extends Component {
 
     this.state = {
       dialogOpen: false,
-      value: 0,
+      initialStake: 0,
       expiration: 0,
       documentURI: '',
       dataKeyTokenBalance: null,
       tknBalance: 0,
       blockNumber: 0,
+      stackId: null,
+      showStatus: false,
       alertText: ''
     }
 
@@ -58,6 +68,7 @@ class CreateRequest extends Component {
     }
   }
 
+
   setBlockNumber() {
     // Update the Block Number
     this.context.drizzle.web3.eth.getBlockNumber((err, blockNumber) => {
@@ -77,6 +88,40 @@ class CreateRequest extends Component {
     this.setState({ [event.target.name]: event.target.value })
   }
 
+  handleBlockNumInputChange(event) {
+    if (event.target.value.match(/^[0-9]{1,40}$/)) {
+      this.setState({ [event.target.name]: event.target.value })
+    } else if(event.target.value === '') {
+      this.setState({ [event.target.name]: '' })
+    } else {
+      // Just Ignore the value
+    }
+  }
+
+  handleAmountInputChange(event) {
+    //  Fixed to two decimal places
+    if (event.target.value.match(/^\d+(\.\d{1,2})?$/)) {
+      this.setState({ [event.target.name]: event.target.value })
+    } else if(event.target.value === '') {
+      this.setState({ [event.target.name]: '' })
+    } else {
+      // Just Ignore the value
+    }
+  }
+  
+//   handleAmountInputChange(event) {
+//     if (event.target.value.match(/^[0-9]{1,40}$/)) {
+//       var amount = new BN(event.target.value)
+//       if (amount.gt(0)) {
+//         this.setState({ [event.target.name]: event.target.value })
+//       } else {
+//         this.setState({ [event.target.name]: 0 })
+//       }
+//     } else if(event.target.value === '') {
+//       this.setState({ [event.target.name]: '' })
+//     }
+//   }
+
   handleDialogOpen() {
     this.setState({ dialogOpen: true })
   }
@@ -88,28 +133,31 @@ class CreateRequest extends Component {
   handleCreateButton() {
 
     //value, expiration, documentURI 
-    // Add Condifition of the BlockNumber Validation as well
+    var zeroBN = new BN(0)
+    var initialStakeBN = new BN(this.helperFunctions.toWei(this.state.initialStake))
+    var tokenBalanceBN = new BN(this.state.tokenBalance)
 
     const docURIinBytes = this.context.drizzle.web3.utils.fromAscii(this.state.documentURI);
 
-console.log("docURIinBytes - " + docURIinBytes);    
+
+    console.log("this.state.initialStake - " + this.state.initialStake)
+    console.log("this.helperFunctions.toWei(this.state.initialStake) - " + this.helperFunctions.toWei(this.state.initialStake))
+    console.log("initialStakeBN - " + initialStakeBN.toString())
 
     if(this.state.documentURI.length > 0 && 
-      parseInt(this.state.value) > 0 && 
-      parseInt(this.state.value) <= parseInt(this.state.tokenBalance) && 
-      parseInt(this.state.expiration) > parseInt(this.state.blockNumber)) {
-        
-      const stackId = this.contracts.ServiceRequest.methods["createRequest"].cacheSend(this.state.value, this.state.expiration, docURIinBytes, {from: this.props.accounts[0]})
+      initialStakeBN.gt(zeroBN) && 
+      initialStakeBN.lte(tokenBalanceBN) && 
+      parseInt(this.state.expiration,10) > parseInt(this.state.blockNumber,10)) {
+      const stackId = this.contracts.ServiceRequest.methods["createRequest"].cacheSend(initialStakeBN.toString(), this.state.expiration, docURIinBytes, {from: this.props.accounts[0]})
 
-      if (this.props.transactionStack[stackId]) {
-        const txHash = this.props.trasnactionStack[stackId]
-        console.log("txHash - " + txHash )
-      }
+      this.setState({stackId});
+      this.setState({loadingIndicator: true});
+      this.setState({showStatus: true});
 
-    } else if (this.state.value === 0 || parseInt(this.state.value) >= parseInt(this.state.tokenBalance)) {
-      this.setState({ alertText: `Oops! You dont have enough token balance.`})
+    } else if (initialStakeBN.lte(zeroBN) || initialStakeBN.gte(tokenBalanceBN)) {
+      this.setState({ alertText: `Oops! You dont have enough token balance in RFAI Escrow.`})
       this.handleDialogOpen()
-    } else if (this.state.expiration === 0) {
+    } else if (this.state.expiration === '' || parseInt(this.state.expiration,10) < parseInt(this.state.blockNumber,10)) {
       this.setState({ alertText: `Oops! Expiration should be great than current blocknumber.`})
       this.handleDialogOpen()  
     }else if (this.state.documentURI.length === 0) {
@@ -128,18 +176,21 @@ console.log("docURIinBytes - " + docURIinBytes);
       <div>
         {/* <Paper style={styles} elevation={5}> */}
           <form className="pure-form pure-form-stacked">
-            <input name="value" type="text" placeholder="tokens to stake:" value={this.state.value} onChange={this.handleRequestInputChange} /> <br/><br/>
-            <input name="expiration" type="text" placeholder="expiration block number:" value={this.state.expiration} onChange={this.handleRequestInputChange} /> <br />
+            <input name="initialStake" type="number" placeholder="Tokens to stake:" min={0} value={this.state.initialStake} onChange={this.handleAmountInputChange} /> <br/><br/>
+            <input name="expiration" type="number" placeholder="Expiration block number:" value={this.state.expiration} min={this.state.blockNumber} onChange={this.handleBlockNumInputChange} /> <br />
             <label>Current Blocknumber: {this.state.blockNumber}</label> <br/>
             <input name="documentURI" type="text" placeholder="documentURI:" value={this.state.documentURI} onChange={this.handleRequestInputChange} /><br/><br/>
-            <button type="button" class="blue" onClick={this.handleCreateButton}>Submit</button>
+            <button type="button" className="blue" onClick={this.handleCreateButton}>Submit</button>
           </form>
         {/* </Paper> */}
+
+        { this.state.showStatus ? <TransactionResult key={this.state.stackId} stackId={this.state.stackId} /> : null }
 
       <Dialog PaperProps={dialogStyles} open={this.state.dialogOpen} >
         <p>{this.state.alertText}</p>
         <p><Button variant="contained" onClick={this.handleDialogClose} >Close</Button></p>
       </Dialog>
+
       </div>
     )
   }

@@ -7,6 +7,7 @@ import web3 from 'web3'
 import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
 import Dialog from '@material-ui/core/Dialog'
+import HelperFunctions from '../HelperFunctions'
 
 //inline styles
 const styles = {
@@ -28,12 +29,14 @@ class WithdrawToken extends Component {
     super(props)
 
     this.contracts = context.drizzle.contracts
+    this.helperFunctions = new HelperFunctions();
 
     this.handleAmountInputChange = this.handleAmountInputChange.bind(this)
     this.handleDialogOpen = this.handleDialogOpen.bind(this)
     this.handleDialogClose = this.handleDialogClose.bind(this)
     this.handleWithdrawButton = this.handleWithdrawButton.bind(this)
-    this.setTXParamValue = this.setTXParamValue.bind(this)
+
+    // this.setTXParamValue = this.setTXParamValue.bind(this)
 
     // this.props.tknSpender
     this.state = {
@@ -84,19 +87,14 @@ class WithdrawToken extends Component {
   }
 
   handleAmountInputChange(event) {
-    if (event.target.value.match(/^[0-9]{1,40}$/)) {
-      var amount = new BN(event.target.value)
-      if (amount.gte(0)) {
-        this.setState({ [event.target.name]: amount.toString() })
-        this.setTXParamValue(amount)
-      } else {
-        this.setState({ [event.target.name]: '' })
-        this.setTXParamValue(0)
-      }
+    //  Fixed to two decimal places
+    if (event.target.value.match(/^\d+(\.\d{1,2})?$/)) {
+      this.setState({ [event.target.name]: event.target.value })
+    } else if(event.target.value === '') {
+      this.setState({ [event.target.name]: '' })
     } else {
-        this.setState({ [event.target.name]: '' })
-        this.setTXParamValue(0)
-      }
+      // Just Ignore the value
+    }
   }
 
   handleDialogOpen() {
@@ -108,12 +106,14 @@ class WithdrawToken extends Component {
   }
 
   handleWithdrawButton() {
-    var amountBN = new BN(this.state.withdrawAmount)
+
+    var zeroBN = new BN(0)
+    var withdrawAmountBN = new BN(this.helperFunctions.toWei(this.state.withdrawAmount))
     var escrrowBalanceBN = new BN(this.state.escrowBalance)
 
-    if(amountBN.gt(0) && amountBN.lte(escrrowBalanceBN)) {
-      this.contracts.ServiceRequest.methods["withdraw"].cacheSend(this.state.withdrawAmount, {from: this.props.accounts[0]})
-    } else if (amountBN.gt(escrrowBalanceBN)) {
+    if(withdrawAmountBN.gt(zeroBN) && withdrawAmountBN.lte(escrrowBalanceBN)) {
+      this.contracts.ServiceRequest.methods["withdraw"].cacheSend(withdrawAmountBN.toString(), {from: this.props.accounts[0]})
+    } else if (withdrawAmountBN.gt(escrrowBalanceBN)) {
       this.setState({ alertText: 'Oops! You are trying to withdraw more than you have in RFAI Escrow.'})
       this.handleDialogOpen()
     } else {
@@ -122,19 +122,22 @@ class WithdrawToken extends Component {
     }
   }
 
-  setTXParamValue(_value) {
-    if (web3.utils.isBN(_value)) {
-      this.setState({
-        withdrawAmount: _value.toString()
-      })
-    } else {
-      this.setState({
-        withdrawAmount: ''
-      })
-    }
-  }
+  // setTXParamValue(_value) {
+  //   if (web3.utils.isBN(_value)) {
+  //     this.setState({
+  //       withdrawAmount: _value.toString()
+  //     })
+  //   } else {
+  //     this.setState({
+  //       withdrawAmount: ''
+  //     })
+  //   }
+  // }
 
   render() {
+
+    const tknBalance = this.helperFunctions.fromWei(this.state.tknBalance)
+    const escrowBalance = this.helperFunctions.fromWei(this.state.escrowBalance)
 
     return (
       <div>
@@ -142,9 +145,9 @@ class WithdrawToken extends Component {
           <p><strong>Withdraw Token from RFAI Escrow Contract </strong></p>
 
           <form className="pure-form pure-form-stacked">
-            <p>Token Balance: {this.state.tknBalance} AGI</p>
-            <p>Balance in Escrow: {this.state.escrowBalance} AGI</p> <br/>
-            <input name="withdrawAmount" type="text" placeholder="Tokens to Withdraw:" value={this.state.withdrawAmount} onChange={this.handleAmountInputChange} /><br/><br/><br/>
+            <p>Token Balance: {tknBalance} AGI</p>
+            <p>Balance in Escrow: {escrowBalance} AGI</p> <br/>
+            <input name="withdrawAmount" type="number" placeholder="Tokens to Withdraw:" min={0} value={this.state.withdrawAmount} onChange={this.handleAmountInputChange} /><br/><br/><br/>
             <Button type="Button" variant="contained" onClick={this.handleWithdrawButton}>Withdraw</Button>
           </form>
           {/* <p>Tokens to deposit: {depositGroomed} </p> */}

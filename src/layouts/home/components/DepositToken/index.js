@@ -8,6 +8,7 @@ import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
 //import InvalidAddressModal from '../InvalidAddressModal'
 import Dialog from '@material-ui/core/Dialog'
+import HelperFunctions from '../HelperFunctions'
 
 //inline styles
 const styles = {
@@ -29,12 +30,14 @@ class DepositToken extends Component {
     super(props)
 
     this.contracts = context.drizzle.contracts
+    this.helperFunctions = new HelperFunctions();
 
     this.handleAmountInputChange = this.handleAmountInputChange.bind(this)
     this.handleDialogOpen = this.handleDialogOpen.bind(this)
     this.handleDialogClose = this.handleDialogClose.bind(this)
     this.handleDepositButton = this.handleDepositButton.bind(this)
-    this.setTXParamValue = this.setTXParamValue.bind(this)
+
+    //this.setTXParamValue = this.setTXParamValue.bind(this)
 
     // this.props.tknSpender
     this.state = {
@@ -90,7 +93,7 @@ class DepositToken extends Component {
 
   setTokenBalance(contract) {
     if (contract.balanceOf[this.state.dataKeyTokenBalance] !== undefined && this.state.dataKeyTokenBalance !== null) {
-      this.setState({
+      this.setState({ 
         tknBalance: contract.balanceOf[this.state.dataKeyTokenBalance].value
       })
     }
@@ -105,19 +108,14 @@ class DepositToken extends Component {
   }
 
   handleAmountInputChange(event) {
-    if (event.target.value.match(/^[0-9]{1,40}$/)) {
-      var amount = new BN(event.target.value)
-      if (amount.gte(0)) {
-        this.setState({ [event.target.name]: amount.toString() })
-        this.setTXParamValue(amount)
-      } else {
-        this.setState({ [event.target.name]: '' })
-        this.setTXParamValue(0)
-      }
+    //  Fixed to two decimal places
+    if (event.target.value.match(/^\d+(\.\d{1,2})?$/)) {
+      this.setState({ [event.target.name]: event.target.value })
+    } else if(event.target.value === '') {
+      this.setState({ [event.target.name]: '' })
     } else {
-        this.setState({ [event.target.name]: '' })
-        this.setTXParamValue(0)
-      }
+      // Just Ignore the value
+    }
   }
 
   handleDialogOpen() {
@@ -129,16 +127,18 @@ class DepositToken extends Component {
   }
 
   handleDepositButton() {
-    var amountBN = new BN(this.state.depositAmount)
+    // Only deposit Amount to be converted to Wei AGI format
+    var zeroBN = new BN(0)
+    var depositAmountBN = new BN(this.helperFunctions.toWei(this.state.depositAmount))
     var balanceBN = new BN(this.state.tknBalance)
     var allowanceBN = new BN(this.state.tknAllowance)
 
-    if(amountBN.gt(0) && amountBN.lte(balanceBN) && amountBN.lte(allowanceBN)) {
-      this.contracts.ServiceRequest.methods["deposit"].cacheSend(this.state.depositAmount, {from: this.props.accounts[0]})
-    } else if (amountBN.gt(balanceBN)) {
+    if(depositAmountBN.gt(zeroBN) && depositAmountBN.lte(balanceBN) && depositAmountBN.lte(allowanceBN)) {
+      this.contracts.ServiceRequest.methods["deposit"].cacheSend(depositAmountBN.toString(), {from: this.props.accounts[0]})
+    } else if (depositAmountBN.gt(balanceBN)) {
       this.setState({ alertText: 'Oops! You are trying to transfer more than you have.'})
       this.handleDialogOpen()
-    } else if (amountBN.gt(allowanceBN)) {
+    } else if (depositAmountBN.gt(allowanceBN)) {
       this.setState({ alertText: 'Oops! You are trying to transfer more than you have approved.'})
       this.handleDialogOpen()
     } else {
@@ -147,19 +147,23 @@ class DepositToken extends Component {
     }
   }
 
-  setTXParamValue(_value) {
-    if (web3.utils.isBN(_value)) {
-      this.setState({
-        depositAmount: _value.toString()
-      })
-    } else {
-      this.setState({
-        depositAmount: ''
-      })
-    }
-  }
+  // setTXParamValue(_value) {
+  //   if (web3.utils.isBN(_value)) {
+  //     this.setState({
+  //       depositAmount: _value.toString()
+  //     })
+  //   } else {
+  //     this.setState({
+  //       depositAmount: ''
+  //     })
+  //   }
+  // }
 
   render() {
+
+    const tknBalance = this.helperFunctions.fromWei(this.state.tknBalance)
+    const escrowBalance = this.helperFunctions.fromWei(this.state.escrowBalance)
+    const tknAllowance = this.helperFunctions.fromWei(this.state.tknAllowance)
 
     return (
       <div>
@@ -167,10 +171,10 @@ class DepositToken extends Component {
           <p><strong>Deposit Token to RFAI Escrow Contract </strong></p>
 
           <form className="pure-form pure-form-stacked">
-            <p>Token Balance: {this.state.tknBalance} AGI</p>
-            <p>Balance in Escrow: {this.state.escrowBalance} AGI</p>
-            <p>Token Allowance: {this.state.tknAllowance} AGI</p><br/>
-            <input name="depositAmount" type="text" placeholder="Tokens to Deposit:" value={this.state.depositAmount} onChange={this.handleAmountInputChange} /><br/><br/><br/>
+            <p>Token Balance: {tknBalance} AGI</p>
+            <p>Balance in Escrow: {escrowBalance} AGI</p>
+            <p>Token Allowance: {tknAllowance} AGI</p><br/>
+            <input name="depositAmount" type="number" placeholder="Tokens to Deposit:" min={0} value={this.state.depositAmount} onChange={this.handleAmountInputChange} /><br/><br/><br/>
             <Button type="Button" variant="contained" onClick={this.handleDepositButton}>Deposit</Button>
           </form>
       </Paper>
