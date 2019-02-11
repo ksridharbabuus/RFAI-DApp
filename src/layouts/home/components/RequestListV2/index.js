@@ -168,7 +168,7 @@ class RequestListV2 extends Component {
 
       var dataKeyRequestKeys = []
       for(var i=0; i< this.state.nextRequestId; i++) {
-        dataKeyRequestKeys.push(this.contracts.ServiceRequest.methods.requests.cacheCall(i))
+        dataKeyRequestKeys.push(this.contracts.ServiceRequest.methods.getServiceRequestById.cacheCall(i))
       }
       this.setState({dataKeyRequestKeys});
 
@@ -287,10 +287,30 @@ class RequestListV2 extends Component {
 
   createActionRow(req, index) {
 
-    if (this.props.ServiceRequest.requests[req] !== undefined && req !== null) {
-      var r = this.props.ServiceRequest.requests[req].value;
+    if (this.props.ServiceRequest.getServiceRequestById[req] !== undefined && req !== null) {
+      var r = this.props.ServiceRequest.getServiceRequestById[req].value;
 
-      if(this.state.compRequestStatus === "999" && r.status === "0" && parseInt(r.expiration,10) < parseInt(this.state.blockNumber,10)) {
+      var enableStake = false;
+      var enableSubmitSol = false;
+      var enableVote = false;
+      
+
+      //block.number < req.expiration && block.number <= req.endSubmission
+      if(parseInt(this.state.blockNumber,10) < parseInt(r.expiration,10) && parseInt(this.state.blockNumber,10) <= parseInt(r.endSubmission,10)) {
+        enableSubmitSol = true;
+      }
+
+      //block.number < req.expiration && block.number < req.endEvaluation
+      if(parseInt(this.state.blockNumber,10) < parseInt(r.expiration,10) &&  parseInt(this.state.blockNumber,10) <= parseInt(r.endEvaluation,10)) {
+        enableStake = true;
+      }
+
+      //block.number < req.expiration && block.number > req.endSubmission && block.number <= req.endEvaluation
+      if(parseInt(this.state.blockNumber,10) < parseInt(r.expiration,10) && parseInt(this.state.blockNumber,10) > parseInt(r.endSubmission,10) && parseInt(this.state.blockNumber,10) <= parseInt(r.endEvaluation,10)) {
+        var enableVote = true;
+      }
+
+      if(this.state.compRequestStatus === "999" && parseInt(r.expiration,10) < parseInt(this.state.blockNumber,10)) {
         return (
             <ExpansionPanelActions>
                 <div className="row">
@@ -311,14 +331,14 @@ class RequestListV2 extends Component {
                 </div>
             </ExpansionPanelActions>
         )
-      } else if(r.status === "1") {
+      } else if(r.status === "1" && parseInt(r.expiration,10) > parseInt(this.state.blockNumber,10)) {
         return (
             <ExpansionPanelActions>
                 <div className="row">
                     <div className="col">
-                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleSubmitSolutionButton(event, r.requestId, r.expiration)}> Submit Solution</button>
-                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleStakeButton(event, r.requestId, r.expiration)}>Stake Request</button>
-                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleVoteButton(event, r.requestId, r.expiration)}>Vote Request</button>
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" disabled={!enableSubmitSol} onClick={event => this.handleSubmitSolutionButton(event, r.requestId, r.expiration)}> Submit Solution</button>
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" disabled={!enableStake} onClick={event => this.handleStakeButton(event, r.requestId, r.expiration)}>Stake Request</button>
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" disabled={!enableVote} onClick={event => this.handleVoteButton(event, r.requestId, r.expiration)}>Vote Request</button>
                     </div>
                 </div>
             </ExpansionPanelActions>
@@ -328,7 +348,7 @@ class RequestListV2 extends Component {
             <ExpansionPanelActions>
                 <div className="row">
                     <div className="col">
-                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal"> Claim</button>
+                        {/* <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal"> Claim</button> */}
                     </div>
                 </div>
             </ExpansionPanelActions>
@@ -338,7 +358,7 @@ class RequestListV2 extends Component {
             <ExpansionPanelActions>
                 <div className="row">
                     <div className="col">
-                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal"> Claim</button>
+                        {/* <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal"> Claim</button> */}
                     </div>
                 </div>
             </ExpansionPanelActions>
@@ -349,11 +369,11 @@ class RequestListV2 extends Component {
 
   createDetailsRow(req, index) {
 
-    if (this.props.ServiceRequest.requests[req] !== undefined && req !== null) {
+    if (this.props.ServiceRequest.getServiceRequestById[req] !== undefined && req !== null) {
 
-      var r = this.props.ServiceRequest.requests[req].value;
+      var r = this.props.ServiceRequest.getServiceRequestById[req].value;
       var docURI = this.context.drizzle.web3.utils.toAscii(r.documentURI);
-      if(this.state.compRequestStatus === "999" && r.status === "0" && parseInt(r.expiration,10) < parseInt(this.state.blockNumber,10)) {
+      if(this.state.compRequestStatus === "999" && parseInt(r.expiration,10) < parseInt(this.state.blockNumber,10)) {
         return (
           <ExpansionPanelDetails>
               <div className="row">
@@ -377,7 +397,7 @@ class RequestListV2 extends Component {
                 </div>
             </ExpansionPanelDetails>
         )
-      } else if(r.status === "1") {
+      } else if(r.status === "1" && parseInt(r.expiration,10) > parseInt(this.state.blockNumber,10)) {
         return (
             <ExpansionPanelDetails>
                 <div className="row">
@@ -428,11 +448,13 @@ class RequestListV2 extends Component {
 
     const {expanded} = this.state;
 
-    if (this.props.ServiceRequest.requests[req] !== undefined && req !== null) {
+    if (this.props.ServiceRequest.getServiceRequestById[req] !== undefined && req !== null) {
 
-      var r = this.props.ServiceRequest.requests[req].value;
+      var r = this.props.ServiceRequest.getServiceRequestById[req].value;
       // Numbers are hard coded to check for Expiry as we dont manage expiry status for a request explicitly
-      if(r.status === this.state.compRequestStatus || (this.state.compRequestStatus === "999" && r.status === "0") )
+      if((r.status === this.state.compRequestStatus && r.status !== "1") || 
+        (this.state.compRequestStatus === "1" && r.status === "1" && parseInt(r.expiration,10) > parseInt(this.state.blockNumber,10) ) ||
+        (this.state.compRequestStatus === "999" && parseInt(r.expiration,10)<parseInt(this.state.blockNumber,10) ) )
       {
         return (
             <ExpansionPanel expanded={expanded === r.requestId} onChange={this.handleChange(r.requestId)}>

@@ -193,12 +193,15 @@ console.log("contract.balances[this.state.dataKeyEscrowBalance].value - " + cont
   // }
 
   stakeFragment() {
+
+    const escrowBalance = this.helperFunctions.fromWei(this.state.escrowBalance)
+
     return (
       <Paper style={styles} elevation={5}>
           <p><strong>Stake Token for Request Id - {this.state.requestId} </strong></p>
 
           <form className="pure-form pure-form-stacked">
-            <p>Balance in Escrow: {this.state.escrowBalance} AGI</p>
+            <p>Balance in Escrow: {escrowBalance} AGI</p>
             <input name="stakeAmount" type="text" placeholder="Tokens to Stake:" value={this.state.stakeAmount} onChange={this.handleAmountInputChange} /><br/><br/><br/>
             <Button type="Button" variant="contained" onClick={this.handleStakeButton}>Stake</Button>
           </form>

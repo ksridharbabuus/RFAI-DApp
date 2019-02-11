@@ -81,7 +81,7 @@ class TransferToken extends Component {
     var amountBN = new BN(this.helperFunctions.toWei(this.state.transferAmount)) 
     var balanceBN = new BN(this.props.tknBalance)
     if(this.context.drizzle.web3.utils.isAddress(this.state.recipientAddress) && amountBN.lte(balanceBN)) {
-      this.contracts.SingularityNetToken.methods["transfer"].cacheSend(this.state.recipientAddress, this.state.transferAmount, {from: this.props.accounts[0]})
+      this.contracts.SingularityNetToken.methods["transfer"].cacheSend(this.state.recipientAddress, amountBN.toString(), {from: this.props.accounts[0]})
     } else if (!this.context.drizzle.web3.utils.isAddress(this.state.recipientAddress)) {
       this.setState({ alertText: `Oops! The receipient address isn't a correct ethereum address.`})
       this.handleDialogOpen()
