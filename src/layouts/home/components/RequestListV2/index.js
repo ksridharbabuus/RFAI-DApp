@@ -212,9 +212,10 @@ class RequestListV2 extends Component {
     })
   }
 
-  handleVoteButton(event, requestId, expiry) {
+  handleVoteButton(event, requestId, expiry, showVoteButton) {
 
     this.setState({selectedRequestId: requestId, selectedRequestExpiry: expiry}, () => {
+      this.setState( {showVoteButton});
       this.setState( {dialogOpenVoteRequest: true});
     })
   }
@@ -295,6 +296,8 @@ class RequestListV2 extends Component {
       var enableVote = false;
       
 
+      // TODO: Add condition check for Stake Members cannot Submit Solution and vice versa
+
       //block.number < req.expiration && block.number <= req.endSubmission
       if(parseInt(this.state.blockNumber,10) < parseInt(r.expiration,10) && parseInt(this.state.blockNumber,10) <= parseInt(r.endSubmission,10)) {
         enableSubmitSol = true;
@@ -338,7 +341,7 @@ class RequestListV2 extends Component {
                     <div className="col">
                         <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" disabled={!enableSubmitSol} onClick={event => this.handleSubmitSolutionButton(event, r.requestId, r.expiration)}> Submit Solution</button>
                         <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" disabled={!enableStake} onClick={event => this.handleStakeButton(event, r.requestId, r.expiration)}>Stake Request</button>
-                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" disabled={!enableVote} onClick={event => this.handleVoteButton(event, r.requestId, r.expiration)}>Vote Request</button>
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" disabled={!enableVote} onClick={event => this.handleVoteButton(event, r.requestId, r.expiration, true)}>Vote Request</button>
                     </div>
                 </div>
             </ExpansionPanelActions>
@@ -661,7 +664,7 @@ class RequestListV2 extends Component {
                           <div className="clear"></div><br/>
                       </div>
                       <div className="modal-body">
-                        <RequestSolution requestId={this.state.selectedRequestId} />
+                        <RequestSolution requestId={this.state.selectedRequestId} showVoteButton={this.state.showVoteButton}/>
                       </div>
                   </div>
             </div>

@@ -13,6 +13,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
 import Dialog from '@material-ui/core/Dialog'
+import Icon from '@material-ui/core/Icon';
 
 //inline styles
 const dialogStyles = {
@@ -52,6 +53,7 @@ class RequestSolution extends Component {
 
     this.state = {
       requestId: this.props.requestId,
+      showVoteButton: this.props.showVoteButton,
       dataKeyRequestId: null,
       dataKeyStakeMembers: [],
       dataKeySubmitters: [],
@@ -158,17 +160,23 @@ class RequestSolution extends Component {
 
       var s = this.props.ServiceRequest.getSubmittedSolutionById[submitter].value;
       // bool found, bytes solutionDocURI, uint256 totalVotes, bool isSubmitted, bool isShortlisted, bool isClaimed
+      var solDocURI = this.context.drizzle.web3.utils.toAscii(s.solutionDocURI);
       if(s.found === true)
       {
         return (
           <React.Fragment>
             <TableRow key={index}> 
-                <TableCell style={tableColStyles} component="th" scope="row">{this.state.submitters[index]}</TableCell>
-                <TableCell style={tableColStyles} align="right">{s.solutionDocURI}</TableCell>
+                <TableCell style={tableColStyles} component="th" scope="row">
+                  {s.isShortlisted === true ? <b>*</b>: ""}
+                  {this.state.submitters[index]}
+                </TableCell>
+                <TableCell style={tableColStyles} align="right">{solDocURI}</TableCell>
+                
                 <TableCell style={tableColStyles} align="right">
                   {/* {s.totalVotes} - {s.isSubmitted} - {s.isShortlisted} - {s.isClaimed} <br/> */}
-                  <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleVoteButton(event, this.state.submitters[index])}>Vote</button>
+                  {this.state.showVoteButton === false ? s.totalVotes : <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleVoteButton(event, this.state.submitters[index])}>Vote</button>}
                 </TableCell>
+                
               </TableRow>
           </React.Fragment>
         );
@@ -186,7 +194,9 @@ class RequestSolution extends Component {
               <TableRow>
                 <TableCell style={tableColStyles}>Submitter</TableCell>
                 <TableCell style={tableColStyles} align="right">Solution URI</TableCell>
-                <TableCell style={tableColStyles} align="right">Vote</TableCell>
+                <TableCell style={tableColStyles} align="right">
+                  {this.state.showVoteButton===true ? "Vote" : "Total Votes"}
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
