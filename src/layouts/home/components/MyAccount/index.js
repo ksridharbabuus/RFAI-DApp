@@ -53,15 +53,14 @@ class MyAccount extends Component {
 
     const selectedTab = this.state.selectedTab;
     
-    return (
+    return ( 
       <div class="main-content">
-      <div > {/*  class="main" Looks like this style has fixed width for the Tab Control...*/}
-        <AppBar position="static" color="default">
-          <Tabs value={selectedTab} onChange={this.handleChange}>
-            <Tab label="Allowance" />
-            <Tab label="Deposit" />
-            <Tab label="Withdraw" />
-            <Tab label="Admin" />
+      <div class="singularity-accordion"> {/*  class="main" Looks like this style has fixed width for the Tab Control...*/}
+        <AppBar className="singularity-accordion-header" position="static" color="default">
+          <Tabs className="singularity-accordion-tabs" value={selectedTab} onChange={this.handleChange}>
+            <Tab className="singularity-accordion-tab singularity-accordion-tab-allowance" label="Allowance" />
+            <Tab className="singularity-accordion-tab singularity-accordion-tab-deposit" label="Deposit" />
+            <Tab className="singularity-accordion-tab singularity-accordion-tab-withdraw" label="Withdraw" />
           </Tabs>
         </AppBar>
         {selectedTab === 0 && <Typography component="div" ><ApproveToken /> </Typography>}

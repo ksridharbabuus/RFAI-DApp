@@ -103,14 +103,14 @@ console.log("selectedTab - " + value);
     const selectedTab = this.state.selectedTab;
     return (
       <div className="main-content">
-      <div className="main">
-        <AppBar position="static" color="default">
-          <Tabs value={selectedTab} onChange={this.handleChange}>
-            {this.state.isFoundationMember === true && <Tab label="Open " value={0}/> }
-            <Tab label="Approved " value={1}/>
-            <Tab label="Rejected " value={2} />
-            <Tab label="Closed " value={3} />
-            <Tab label="Expired " value={4} />
+      <div className="main singularity-accordion-main">
+        <AppBar position="static" color="default" className="singularity-tabs">
+          <Tabs value={selectedTab} onChange={this.handleChange} >
+            {this.state.isFoundationMember === true && <Tab label="Open " className="singularity-tab" value={0}/> }
+            <Tab className="singularity-tab" label="Approved " value={1}/>
+            <Tab className="singularity-tab" label="Rejected " value={2} />
+            <Tab className="singularity-tab" label="Closed " value={3} />
+            <Tab className="singularity-tab" label="Expired " value={4} />
           </Tabs>
         </AppBar>
         {selectedTab === 0 && this.state.isFoundationMember === true && <Typography component="div" ><RequestListV2  compRequestStatus="0"/> </Typography>}        

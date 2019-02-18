@@ -4,17 +4,12 @@ import web3 from 'web3'
 import PropTypes from 'prop-types'
 
 // Request Tabs Functionality
-import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
 import Dialog from '@material-ui/core/Dialog'
 
 // Custom Components
-import ApproveToken from '../../components/ApproveToken'
-import DepositToken from '../../components/DepositToken'
 import HelperFunctions from '../HelperFunctions'
 
 //inline styles
@@ -56,8 +51,6 @@ class StakeRequest extends Component {
     this.handleDialogOpen = this.handleDialogOpen.bind(this)
     this.handleDialogClose = this.handleDialogClose.bind(this)
     this.handleStakeButton = this.handleStakeButton.bind(this)
-
-    // this.setTXParamValue = this.setTXParamValue.bind(this)
 
     this.state = {
       requestId: this.props.requestId,
@@ -107,7 +100,7 @@ class StakeRequest extends Component {
 
   setEscrowBalance(contract) {
     if (contract.balances[this.state.dataKeyEscrowBalance] !== undefined && this.state.dataKeyEscrowBalance !== null) {
-console.log("contract.balances[this.state.dataKeyEscrowBalance].value - " + contract.balances[this.state.dataKeyEscrowBalance].value);
+//console.log("contract.balances[this.state.dataKeyEscrowBalance].value - " + contract.balances[this.state.dataKeyEscrowBalance].value);
       this.setState({
         escrowBalance: contract.balances[this.state.dataKeyEscrowBalance].value
       })
@@ -180,59 +173,35 @@ console.log("contract.balances[this.state.dataKeyEscrowBalance].value - " + cont
     }
   }
 
-  // setTXParamValue(_value) {
-  //   if (web3.utils.isBN(_value)) {
-  //     this.setState({
-  //       stakeAmount: _value.toString()
-  //     })
-  //   } else {
-  //     this.setState({
-  //       stakeAmount: ''
-  //     })
-  //   }
-  // }
-
-  stakeFragment() {
-
-    const escrowBalance = this.helperFunctions.fromWei(this.state.escrowBalance)
-
-    return (
-      <Paper style={styles} elevation={5}>
-          <p><strong>Stake Token for Request Id - {this.state.requestId} </strong></p>
-
-          <form className="pure-form pure-form-stacked">
-            <p>Balance in Escrow: {escrowBalance} AGI</p>
-            <input name="stakeAmount" type="text" placeholder="Tokens to Stake:" value={this.state.stakeAmount} onChange={this.handleAmountInputChange} /><br/><br/><br/>
-            <Button type="Button" variant="contained" onClick={this.handleStakeButton}>Stake</Button>
-          </form>
-      </Paper>
-    )
-  }
-
   render() {
 
-    const selectedTab = this.state.selectedTab;
+    const escrowBalance = this.helperFunctions.fromWei(this.state.escrowBalance)
     
     return (
-      <div class="main-content">
-      <div > {/*  class="main" Looks like this style has fixed width for the Tab Control...*/}
-        <AppBar position="static" color="default">
-          <Tabs value={selectedTab} onChange={this.handleChange}>
-            <Tab label="Allowance " />
-            <Tab label="Deposit " />
-            <Tab label="Stake " />
-          </Tabs>
-        </AppBar>
-        {selectedTab === 0 && <Typography component="div" ><ApproveToken /> </Typography>}
-        {selectedTab === 1 && <Typography component="div" ><DepositToken /> </Typography>}
-        {selectedTab === 2 && <Typography component="div" > {this.stakeFragment()} </Typography>}
-      </div>
+      <div > 
+        <Paper style={styles} elevation={0} className="singularity-content">
+            <p>Stake Token for Request Id - {this.state.requestId} </p>
+            <form className="pure-form pure-form-stacked">
+              <div class="row">
+                <div class="col-6">
+                    <label>Tokens to Stake:</label> <div class="clearfix"></div>
+                    <input className="singularity-input" name="stakeAmount" type="text" autoComplete='off' placeholder="Tokens to Stake:" value={this.state.stakeAmount} onChange={this.handleAmountInputChange} />
+                </div>
+                <div class="col-6">
+                    <div class="singularity-token-counter">
+                        <p>Balance in Escrow: <span>{escrowBalance} AGI</span></p>
+                    </div>
+                </div>
+              </div>
+              <Button className="singularity-button high-margin singularity-button-blue" type="Button" variant="contained" onClick={this.handleStakeButton}>Stake</Button>                        
+            </form>
+        </Paper>
 
-      <Dialog PaperProps={dialogStyles} open={this.state.dialogOpen} >
-        <p>{this.state.alertText}</p>
-        <p><Button variant="contained" onClick={this.handleDialogClose} >Close</Button></p>
-      </Dialog>
 
+        <Dialog PaperProps={dialogStyles} open={this.state.dialogOpen} >
+          <p>{this.state.alertText}</p>
+          <p><Button variant="contained" onClick={this.handleDialogClose} >Close</Button></p>
+        </Dialog>
 
       </div>
     )

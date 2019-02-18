@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 
 //components
 import Paper from '@material-ui/core/Paper'
+import HelperFunctions from '../HelperFunctions'
 
 //inline styles
 const styles = {
@@ -16,6 +17,7 @@ class ContractConfig extends Component {
     super(props)
 
     this.contracts = context.drizzle.contracts
+    this.helperFunctions = new HelperFunctions();
 
     this.state = {
       dialogOpen: false,
@@ -85,18 +87,41 @@ class ContractConfig extends Component {
 
   render() {
  
+    const minStake = this.helperFunctions.fromWei(this.state.minStake)
+    
     return (
       <div>
-        <Paper style={styles} elevation={5}>
 
-          <p><strong>RFAI Contract Configurations: </strong></p>
+        <Paper style={styles} elevation={0} className="singularity-content">
+          <p>RFAI Contract Configurations</p>
+
           <form className="pure-form pure-form-stacked">
-            <label>Minimum Stake: </label> {this.state.minStake} <br/>
-            <label>Maximum Stakers: </label> {this.state.maxStakers} <br />
-            <label>Owner: </label> {this.state.owner} <br />
-            <label>Number of Requests : </label> {this.state.nextRequestId}
+          <div class="row">
+            <div class="col-4">
+                <div class="singularity-token-counter">
+                    <p>Minimum Stake: <span>{minStake} AGI</span></p>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="singularity-token-counter">
+                    <p>Maximum Stakers: <span>{this.state.maxStakers}</span></p>
+                </div>            
+            </div>
+            <div class="col-4">
+                <div class="singularity-token-counter">
+                    <p>Number of Requests: <span>{this.state.nextRequestId}</span></p>
+                </div>                        
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+                <div class="spacer"></div>
+                <label>Contract Owner:</label> <div class="clearfix"></div>
+                <label>{this.state.owner}</label>
+            </div>
+          </div>            
           </form>
-        </Paper>
+      </Paper>
 
       </div>
     )

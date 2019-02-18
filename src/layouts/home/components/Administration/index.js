@@ -54,11 +54,11 @@ class Administration extends Component {
     
     return (
       <div className="main-content">
-      <div > {/*  className="main" Looks like this style has fixed width for the Tab Control...*/}
-        <AppBar position="static" color="default">
-          <Tabs value={selectedTab} onChange={this.handleChange}>
-            <Tab label="Configurations" />
-            <Tab label="Foundation Member" />
+      <div class="singularity-accordion" > {/*  className="main" Looks like this style has fixed width for the Tab Control...*/}
+        <AppBar className="singularity-accordion-header" position="static" color="default">
+          <Tabs className="singularity-accordion-tabs" value={selectedTab} onChange={this.handleChange}>
+            <Tab className="singularity-accordion-tab" label="Configurations" />
+            <Tab className="singularity-accordion-tab" label="Foundation Member" />
           </Tabs>
         </AppBar>
         {selectedTab === 0 && <Typography component="div" ><ContractConfig /> </Typography>}

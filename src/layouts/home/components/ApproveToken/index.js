@@ -11,8 +11,9 @@ import HelperFunctions from '../HelperFunctions'
 
 //inline styles
 const styles = {
-    backgroundColor: 'white',
-    padding: 20
+    padding: 20,
+    boxShadow:'none',
+    borderRadius:0
 }
 
 const dialogStyles = {
@@ -125,13 +126,23 @@ console.log("contract.allowance[this.state.dataKeyTokenAllowance].value - " + co
 
     return (
       <div>
-        <Paper style={styles} elevation={5}>
-          <p><strong>Approve Tokens to spend by RFAI Escrow Contract </strong></p>
+        <Paper style={styles} elevation={0} className="singularity-content">
+          <p>Approve Tokens to spend by RFAI Escrow Contract </p>
 
           <form className="pure-form pure-form-stacked">
-            <p>Approved allowance: {tknAllowance} AGI</p><br></br>
-            <input name="approveAmount" type="number" placeholder="Tokens to Approve:" min={0} value={this.state.approveAmount} onChange={this.handleAmountInputChange} /> <br/><br/><br/>
-            <Button type="Button" variant="contained" onClick={this.handleApproveButton}>Approve</Button>
+          <div class="row">
+            <div class="col-6">
+                <label>Tokens to Approve:</label> <div class="clearfix"></div>
+                <input className="singularity-input" name="approveAmount" type="number" placeholder="tokens" autoComplete='off' min={0} value={this.state.approveAmount} onChange={this.handleAmountInputChange} /> 
+            </div>
+            <div class="col-6">
+                <div class="singularity-token-counter">
+                    <p>Approved allowance: <span>{tknAllowance} AGI</span></p>
+                </div>
+                
+            </div>
+          </div>
+            <Button className="singularity-button high-margin singularity-button-blue" type="Button" variant="contained" onClick={this.handleApproveButton}>Approve</Button>
           </form>
           {/* <p>Tokens to approve: {approveGroomed} </p> */}
       </Paper>

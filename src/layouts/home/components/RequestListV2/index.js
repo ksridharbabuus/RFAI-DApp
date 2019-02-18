@@ -72,6 +72,8 @@ class RequestListV2 extends Component {
     this.helperFunctions = new HelperFunctions();
 
     this.handleApproveButton = this.handleApproveButton.bind(this)
+    this.handleRejectButton = this.handleRejectButton.bind(this)
+    this.handleCloseButton = this.handleCloseButton.bind(this)
 
     this.handleDialogOpen = this.handleDialogOpen.bind(this)
     this.handleDialogClose = this.handleDialogClose.bind(this)
@@ -212,10 +214,9 @@ class RequestListV2 extends Component {
     })
   }
 
-  handleVoteButton(event, requestId, expiry, showVoteButton) {
+  handleVoteButton(event, requestId, expiry) {
 
     this.setState({selectedRequestId: requestId, selectedRequestExpiry: expiry}, () => {
-      this.setState( {showVoteButton});
       this.setState( {dialogOpenVoteRequest: true});
     })
   }
@@ -230,6 +231,14 @@ class RequestListV2 extends Component {
 
   handleRejectButton(event, requestId) {
     const stackId = this.contracts.ServiceRequest.methods["rejectRequest"].cacheSend(requestId, {from: this.props.accounts[0]})
+      if (this.props.transactionStack[stackId]) {
+        const txHash = this.props.trasnactionStack[stackId]
+        console.log("txHash - " + txHash);
+      }
+  }
+
+  handleCloseButton(event, requestId) {
+    const stackId = this.contracts.ServiceRequest.methods["closeRequest"].cacheSend(requestId, {from: this.props.accounts[0]})
       if (this.props.transactionStack[stackId]) {
         const txHash = this.props.trasnactionStack[stackId]
         console.log("txHash - " + txHash);
@@ -295,7 +304,6 @@ class RequestListV2 extends Component {
       var enableSubmitSol = false;
       var enableVote = false;
       
-
       // TODO: Add condition check for Stake Members cannot Submit Solution and vice versa
 
       //block.number < req.expiration && block.number <= req.endSubmission
@@ -310,7 +318,7 @@ class RequestListV2 extends Component {
 
       //block.number < req.expiration && block.number > req.endSubmission && block.number <= req.endEvaluation
       if(parseInt(this.state.blockNumber,10) < parseInt(r.expiration,10) && parseInt(this.state.blockNumber,10) > parseInt(r.endSubmission,10) && parseInt(this.state.blockNumber,10) <= parseInt(r.endEvaluation,10)) {
-        var enableVote = true;
+        enableVote = true;
       }
 
       if(this.state.compRequestStatus === "999" && parseInt(r.expiration,10) < parseInt(this.state.blockNumber,10)) {
@@ -318,7 +326,7 @@ class RequestListV2 extends Component {
             <ExpansionPanelActions>
                 <div className="row">
                     <div className="col">
-                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" >Claim</button>
+                      <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleVoteButton(event, r.requestId, r.expiration)}>View Solution</button>
                     </div>
                 </div>
             </ExpansionPanelActions>
@@ -341,7 +349,8 @@ class RequestListV2 extends Component {
                     <div className="col">
                         <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" disabled={!enableSubmitSol} onClick={event => this.handleSubmitSolutionButton(event, r.requestId, r.expiration)}> Submit Solution</button>
                         <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" disabled={!enableStake} onClick={event => this.handleStakeButton(event, r.requestId, r.expiration)}>Stake Request</button>
-                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" disabled={!enableVote} onClick={event => this.handleVoteButton(event, r.requestId, r.expiration, true)}>Vote Request</button>
+                        <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleVoteButton(event, r.requestId, r.expiration)}>View / Vote Solution</button>
+                        <button className="red float-right ml-4" disabled={!this.state.isFoundationMember} onClick={event => this.handleCloseButton(event, r.requestId)}>Close Request</button>                                   
                     </div>
                 </div>
             </ExpansionPanelActions>
@@ -351,7 +360,7 @@ class RequestListV2 extends Component {
             <ExpansionPanelActions>
                 <div className="row">
                     <div className="col">
-                        {/* <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal"> Claim</button> */}
+                    {/* <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleVoteButton(event, r.requestId, r.expiration)}>View Solution</button> */}
                     </div>
                 </div>
             </ExpansionPanelActions>
@@ -361,7 +370,7 @@ class RequestListV2 extends Component {
             <ExpansionPanelActions>
                 <div className="row">
                     <div className="col">
-                        {/* <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal"> Claim</button> */}
+                      {/* <button className="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleVoteButton(event, r.requestId, r.expiration)}>View Solution</button> */}
                     </div>
                 </div>
             </ExpansionPanelActions>
@@ -379,11 +388,11 @@ class RequestListV2 extends Component {
       if(this.state.compRequestStatus === "999" && parseInt(r.expiration,10) < parseInt(this.state.blockNumber,10)) {
         return (
           <ExpansionPanelDetails>
-              <div className="row">
+              <div className="row singularity-stake-details">
                   <div className="col-8">
-                      <div>Requester: <span>{r.requester}</span></div>
-                      <div>documentURI: <span>{docURI}</span></div>
-                      <div>Expiry: <span>{r.expiration}</span></div>
+                      <div><span class="singularity-label">Requester:</span> <span>{r.requester}</span></div>
+                      <div><span class="singularity-label">documentURI:</span> <span>{docURI}</span></div>
+                      <div><span class="singularity-label">Expiry:</span> <span>{r.expiration}</span></div>
                   </div>                                        
               </div>
           </ExpansionPanelDetails>
@@ -391,11 +400,11 @@ class RequestListV2 extends Component {
       } else if(r.status === "0") {
         return (
             <ExpansionPanelDetails>
-                <div className="row">
+              <div className="row singularity-stake-details">
                     <div className="col-8">
-                        <div>Requester: <span>{r.requester}</span></div>
-                        <div>documentURI: <span>{docURI}</span></div>
-                        <div>Expiry: <span>{r.expiration}</span></div>
+                        <div><span class="singularity-label">Requester:</span> <span>{r.requester}</span></div>
+                        <div><span class="singularity-label">documentURI:</span> <span>{docURI}</span></div>
+                        <div><span class="singularity-label">Expiry:</span> <span>{r.expiration}</span></div>
                     </div>                                        
                 </div>
             </ExpansionPanelDetails>
@@ -403,29 +412,23 @@ class RequestListV2 extends Component {
       } else if(r.status === "1" && parseInt(r.expiration,10) > parseInt(this.state.blockNumber,10)) {
         return (
             <ExpansionPanelDetails>
-                <div className="row">
+              <div className="row singularity-stake-details">
                     <div className="col-8">
-                        <div>Requester: <span>{r.requester}</span></div>
-                        <div>documentURI: <span>{docURI}</span></div>
-                        <div>Expiry: <span>{r.expiration}</span></div>
+                        <div><span class="singularity-label">Requester:</span> <span>{r.requester}</span></div>
+                        <div><span class="singularity-label">documentURI:</span> <span>{docURI}</span></div>
+                        <div><span class="singularity-label">Expiry:</span> <span>{r.expiration}</span></div>
                     </div>                                        
                 </div>
-                <div className="row">
-                  <div className="col-8">
-                       <p>Submitted Solutions:</p>
-                      {/* { <RequestSolution requestId={r.requestId}/> } */}
-                  </div>                                        
-              </div>
             </ExpansionPanelDetails>
         )
       } else if(r.status === "2") {
         return (
             <ExpansionPanelDetails>
-                <div className="row">
+                <div className="row singularity-stake-details">
                     <div className="col-8">
-                        <div>Requester: <span>{r.requester}</span></div>
-                        <div>documentURI: <span>{docURI}</span></div>
-                        <div>Expiry: <span>{r.expiration}</span></div>
+                        <div><span class="singularity-label">Requester:</span> <span>{r.requester}</span></div>
+                        <div><span class="singularity-label">documentURI:</span> <span>{docURI}</span></div>
+                        <div><span class="singularity-label">Expiry:</span> <span>{r.expiration}</span></div>
                     </div>                                        
                 </div>
             </ExpansionPanelDetails>
@@ -433,11 +436,11 @@ class RequestListV2 extends Component {
       } else if(r.status === "4") {
         return (
             <ExpansionPanelDetails>
-                <div className="row">
+                <div className="row singularity-stake-details">
                     <div className="col-8">
-                        <div>Requester: <span>{r.requester}</span></div>
-                        <div>documentURI: <span>{docURI}</span></div>
-                        <div>Expiry: <span>{r.expiration}</span></div>
+                        <div><span class="singularity-label">Requester:</span>  <span>{r.requester}</span></div>
+                        <div>d<span class="singularity-label">ocumentURI:</span>  <span>{docURI}</span></div>
+                        <div><span class="singularity-label">Expiry:</span>  <span>{r.expiration}</span></div>
                     </div>                                        
                 </div>
             </ExpansionPanelDetails>
@@ -465,7 +468,7 @@ class RequestListV2 extends Component {
 
                 <div className="card" style={rowStyles.style}>
                     <div className="card-header" style={rowStyles.style}>
-                        <div className="row">
+                        <div className="row singularity-stake-details">
                             <div className="col-3"><span className="float-left text-left">{r.requestId}</span></div>
                             <div className="col-5"><span className="float-left text-left">{r.requester}</span></div>
                             <div className="col-3">
@@ -520,7 +523,7 @@ class RequestListV2 extends Component {
 
               <div className="accordion-header card">
                   <div className="card-header">
-                      <div className="row">
+                        <div className="row singularity-stake-details">
                           <div className="col-3"><span className="float-left text-left">Request Id</span></div>
                           <div className="col-5"><span className="float-left text-left">Requester</span></div>
                           <div className="col-3"><span className="float-right text-right">Total Funds (AGI)</span></div>
@@ -545,12 +548,6 @@ class RequestListV2 extends Component {
           <p><Button variant="contained" onClick={this.handleDialogClose} >Close</Button></p>
         </Dialog>
 
-        {/* <Dialog PaperProps={dialogStyles} open={this.state.dialogOpenApproveRequest} >
-          <ApproveRequest requestId={this.state.approveRequestId} requestExpiry={this.state.approveRequestExpiry} />
-          <p><Button variant="contained" onClick={this.handleApproveRequestDialogClose} >Close</Button></p>
-        </Dialog> */}
-
-
         <Dialog PaperProps={dialogApproveStyles} open={this.state.dialogOpenApproveRequest} >
 
           <div className="modal-dialog" role="document">
@@ -565,13 +562,8 @@ class RequestListV2 extends Component {
                       <div className="modal-body">
                       <ApproveRequest requestId={this.state.approveRequestId} requestExpiry={this.state.approveRequestExpiry} />
                       </div>
-                      {/* <div className="modal-footer">
-                          <button type="button" className="white" data-dismiss="modal">Close</button>
-                          <button type="button" className="blue">Submit</button>
-                      </div> */}
                   </div>
               </div>
-            {/* <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p> */}
         </Dialog>
 
 
@@ -588,13 +580,8 @@ class RequestListV2 extends Component {
                       <div className="modal-body">
                       <StakeRequest requestId={this.state.selectedRequestId} requestExpiry={this.state.selectedRequestExpiry} />
                       </div>
-                      {/* <div className="modal-footer">
-                          <button type="button" className="white" data-dismiss="modal">Close</button>
-                          <button type="button" className="blue">Submit</button>
-                      </div> */}
                   </div>
               </div>
-            {/* <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p> */}
           </Dialog>
 
           <Dialog PaperProps={dialogApproveStyles} open={this.state.dialogOpenSubmitSolutionRequest} >
@@ -608,31 +595,26 @@ class RequestListV2 extends Component {
                           <div className="clear"></div><br/>
                       </div>
                       <div className="modal-body">
-                      {/* <StakeRequest requestId={this.state.selectedRequestId} requestExpiry={this.state.selectedRequestExpiry} /> */}
-
-
                         <div className="main-content">
-                            <div > {/*  className="main" Looks like this style has fixed width for the Tab Control...*/}
-                              <Paper style={dialogApproveStyles} elevation={5}>
+                            <div > 
                                 <p><strong>Submit Solution to Request Id - {this.state.selectedRequestId} </strong></p>
-
                                 <form className="pure-form pure-form-stacked">
-                                  <input name="solutionDocumentURI" type="text" placeholder="Document URI:" value={this.state.solutionDocumentURI} onChange={this.handleRequestInputChange} /><br/><br/><br/>
-                                  <Button type="Button" variant="contained" onClick={this.handleSubmitSolution2Button}>Submit</Button>
+                                  <div class="singularity-content">
+                                    <div class="row">
+                                        <div class="col">
+                                            <label>Solution Document URI:</label><div class="clearfix"></div>
+                                            <input className="singularity-input" name="solutionDocumentURI" type="text" placeholder="Document URI:" autoComplete='off' value={this.state.solutionDocumentURI} onChange={this.handleRequestInputChange} />
+                                            <div class="spacer"></div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="blue" onClick={this.handleSubmitSolution2Button}>Submit</button>
+                                  </div>
                                 </form>
-                                {/* <p>Tokens to deposit: {depositGroomed} </p> */}
-                              </Paper>
                             </div>
                         </div>
-
-                      {/* <div className="modal-footer">
-                          <button type="button" className="white" data-dismiss="modal">Close</button>
-                          <button type="button" className="blue">Submit</button>
-                      </div> */}
                   </div>
               </div>
             </div>
-            {/* <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p> */}
           </Dialog>
 
           <Dialog PaperProps={dialogApproveStyles} open={this.state.dialogOpenShowStake} >
@@ -650,7 +632,6 @@ class RequestListV2 extends Component {
                       </div>
                   </div>
             </div>
-            {/* <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p> */}
           </Dialog>
 
           <Dialog PaperProps={dialogApproveStyles} open={this.state.dialogOpenVoteRequest} >
@@ -664,11 +645,10 @@ class RequestListV2 extends Component {
                           <div className="clear"></div><br/>
                       </div>
                       <div className="modal-body">
-                        <RequestSolution requestId={this.state.selectedRequestId} showVoteButton={this.state.showVoteButton}/>
+                        <RequestSolution requestId={this.state.selectedRequestId}/>
                       </div>
                   </div>
             </div>
-            {/* <p><Button variant="contained" onClick={this.handleCreateRequestDialogClose} >Close</Button></p> */}
           </Dialog>
 
       </div>

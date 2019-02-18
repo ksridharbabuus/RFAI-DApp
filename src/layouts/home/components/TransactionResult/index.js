@@ -81,14 +81,14 @@ console.log("txnStatus - " + txnStatus);
       <div>
         
       {/* <Dialog PaperProps={dialogStyles} open={this.state.loadingIndicator} > */}
-      <Paper style={styles} elevation={5}>
+      <Paper style={styles} elevation={0} className="singularity-dialog">
         <div>
           <div> 
             { this.state.loadingIndicator && <CircularProgress style={progressStyles} /> } 
           </div>
-          <div>
-            <p>Txn Hash: {this.state.txnHash}</p>
-            <p>Txn Status: {this.state.txnStatus === null ? "Approve Txn in Metamask" : this.state.txnStatus}</p>
+          <div class="singularity-status-text">
+            <p><label class="singularity-gen-label">Txn Status:</label> {this.state.txnStatus === null ? "Approve Txn in Metamask" : this.state.txnStatus}</p>
+            <p><label class="singularity-gen-label">Txn Hash:</label><div class="clearfix"></div> {this.state.txnHash}</p>            
           </div>
         </div>
         </Paper>

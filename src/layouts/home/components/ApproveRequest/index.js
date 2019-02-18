@@ -48,19 +48,11 @@ console.log("ApproveRequest Constructor " + this.props.requestId + " &&& " + thi
   }
 
   componentDidMount() {
-    this.setState({invalidAddress: false})
-    // Get the Data Key
-    // const dataKeyTokenBalance = this.contracts.ServiceRequest.methods.balances.cacheCall(this.props.accounts[0]);
 
-    // this.setState({dataKeyTokenBalance})
-    // this.setTokenBalance(this.props.ServiceRequest)
   }
 
   componentDidUpdate(prevProps, prevState) {
-    // if (this.props.ServiceRequest !== prevProps.ServiceRequest || prevState.dataKeyTokenBalance !== this.state.dataKeyTokenBalance) {
-    //   this.setState({ defaultState: false })
-    //     this.setTokenBalance(this.props.ServiceRequest)
-    // }
+
   }
 
   setBlockNumber() {
@@ -68,14 +60,6 @@ console.log("ApproveRequest Constructor " + this.props.requestId + " &&& " + thi
     this.context.drizzle.web3.eth.getBlockNumber((err, blockNumber) => {
       this.setState({blockNumber});
     });
-  }
-
-  setTokenBalance(contract) {
-    // if (contract.balances[this.state.dataKeyTokenBalance] !== undefined && this.state.dataKeyTokenBalance !== null) {
-    //   this.setState({
-    //     tokenBalance: contract.balances[this.state.dataKeyTokenBalance].value
-    //   })
-    // }
   }
   
   handleRequestInputChange(event) {
@@ -135,21 +119,43 @@ console.log("ApproveRequest Constructor " + this.props.requestId + " &&& " + thi
  
     return (
       <div>
-        {/* <Paper style={styles} elevation={5}> */}
-          <form className="pure-form pure-form-stacked">
-            <input name="endSubmission" type="number" placeholder="End of Submission:" value={this.state.endSubmission} min={this.state.blockNumber} onChange={this.handleBlockNumInputChange} /> <br/><br/>
-            <input name="endEvaluation" type="number" placeholder="End of Evaluation:" value={this.state.endEvaluation} min={this.state.blockNumber} onChange={this.handleBlockNumInputChange} /> <br /><br/>
-            <input name="newExpiration" type="number" placeholder="Expiration block number:" value={this.state.newExpiration} min={this.state.blockNumber} onChange={this.handleBlockNumInputChange} /> <br />
-            <label>Current Blocknumber: {this.state.blockNumber}</label> <br/>
-            <button type="button" class="blue" onClick={this.handleApproveButton}>Submit</button>
-            {/* <Button type="Button" variant="contained" onClick={this.handleApproveButton}>Create</Button> */}
-          </form>
-        {/* </Paper> */}
+        <form className="pure-form pure-form-stacked">
+          <div class="singularity-content">
+            <div class="row">
+                <div class="col">
+                    <label>End submission block number:</label><div class="clearfix"></div>
+                    <input className="singularity-input" name="endSubmission" type="number" placeholder="End of Submission:" autoComplete='off' value={this.state.endSubmission} min={this.state.blockNumber} onChange={this.handleBlockNumInputChange} />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label>End evaluation block number:</label><div class="clearfix"></div>
+                    <input className="singularity-input" name="endEvaluation" type="number" placeholder="End of Evaluation:" autoComplete='off' value={this.state.endEvaluation} min={this.state.blockNumber} onChange={this.handleBlockNumInputChange} />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">          
+                    <label>Expiration block number:</label><div class="clearfix"></div>
+                    <input className="singularity-input" name="newExpiration" type="number" placeholder="Expiration block number:" autoComplete='off' value={this.state.newExpiration} min={this.state.blockNumber} onChange={this.handleBlockNumInputChange} />
+            
+                </div>
+            </div>
+            <div class="row">            
+                <div class="col">
+                    <label>Current Blocknumber: {this.state.blockNumber}</label> <div class="clearfix"></div>
+                    <div class="spacer"></div>
+                </div>
+            </div>    
 
-      <Dialog PaperProps={dialogStyles} open={this.state.dialogOpen} >
-        <p>{this.state.alertText}</p>
-        <p><Button variant="contained" onClick={this.handleDialogClose} >Close</Button></p>
-      </Dialog>
+            <button type="button" class="blue" onClick={this.handleApproveButton}>Submit</button>
+            </div>
+          </form>
+
+        <Dialog PaperProps={dialogStyles} open={this.state.dialogOpen} >
+          <p>{this.state.alertText}</p>
+          <p><Button variant="contained" onClick={this.handleDialogClose} >Close</Button></p>
+        </Dialog>
+        
       </div>
     )
   }

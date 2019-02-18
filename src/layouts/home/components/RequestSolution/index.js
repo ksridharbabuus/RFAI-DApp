@@ -13,7 +13,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
 import Dialog from '@material-ui/core/Dialog'
-import Icon from '@material-ui/core/Icon';
+import HelperFunctions from '../HelperFunctions'
 
 //inline styles
 const dialogStyles = {
@@ -46,14 +46,16 @@ class RequestSolution extends Component {
 
     this.contracts = context.drizzle.contracts
     this.context = context
+    this.helperFunctions = new HelperFunctions();
 
     this.handleDialogOpen = this.handleDialogOpen.bind(this)
     this.handleDialogClose = this.handleDialogClose.bind(this)
     this.handleVoteButton = this.handleVoteButton.bind(this)
 
+    this.handleClaimButton = this.handleClaimButton.bind(this)
+
     this.state = {
       requestId: this.props.requestId,
-      showVoteButton: this.props.showVoteButton,
       dataKeyRequestId: null,
       dataKeyStakeMembers: [],
       dataKeySubmitters: [],
@@ -153,6 +155,16 @@ class RequestSolution extends Component {
     }
 
   }
+  
+  handleClaimButton(event) {
+
+    const stackId = this.contracts.ServiceRequest.methods["requestClaim"].cacheSend(this.state.requestId, {from: this.props.accounts[0]})
+    if (this.props.transactionStack[stackId]) {
+      const txHash = this.props.trasnactionStack[stackId]
+      console.log("txHash - " + txHash)
+    }
+
+  }
 
   createRow(submitter, index) {
 
@@ -163,20 +175,36 @@ class RequestSolution extends Component {
       var solDocURI = this.context.drizzle.web3.utils.toAscii(s.solutionDocURI);
       if(s.found === true)
       {
+
+        var enableClaim = false;
+        var enableVote = false;
+
+        // if Approved && Solution Submitted and HasVotes either from Foundation Member or Stake Member and should complete evaluation
+        if(this.state.submitters[index] === this.props.accounts[0] && s.totalVotes > 0 && s.isClaimed === false
+          && (this.state.status === "1" && parseInt(this.state.blockNumber,10) < parseInt(this.state.expiration,10) && parseInt(this.state.blockNumber,10) > parseInt(this.state.endEvaluation,10) )
+          ) {
+            enableClaim = true;
+          }
+
+        if(this.state.submitters[index] !== this.props.accounts[0] 
+          && (this.state.status === "1" && parseInt(this.state.blockNumber,10) < parseInt(this.state.expiration,10) && parseInt(this.state.blockNumber,10) < parseInt(this.state.endEvaluation,10) && parseInt(this.state.blockNumber,10) > parseInt(this.state.endSubmission,10) )
+          ) {
+            enableVote = true;
+        }
         return (
           <React.Fragment>
             <TableRow key={index}> 
-                <TableCell style={tableColStyles} component="th" scope="row">
+                <TableCell style={tableColStyles} component="th" title={this.state.submitters[index]} scope="row">
                   {s.isShortlisted === true ? <b>*</b>: ""}
-                  {this.state.submitters[index]}
+                  {this.helperFunctions.toShortAddress(this.state.submitters[index])}
                 </TableCell>
                 <TableCell style={tableColStyles} align="right">{solDocURI}</TableCell>
-                
+                <TableCell style={tableColStyles} align="right">{s.totalVotes}</TableCell>
                 <TableCell style={tableColStyles} align="right">
-                  {/* {s.totalVotes} - {s.isSubmitted} - {s.isShortlisted} - {s.isClaimed} <br/> */}
-                  {this.state.showVoteButton === false ? s.totalVotes : <button class="blue float-right ml-4" data-toggle="modal" data-target="#exampleModal" onClick={event => this.handleVoteButton(event, this.state.submitters[index])}>Vote</button>}
-                </TableCell>
-                
+                  {/* {s.totalVotes} - {s.isSubmitted} - {s.isShortlisted} - {s.isClaimed} <br/> */}                 
+                  <button class="blue float-right ml-4" disabled={!enableVote} onClick={event => this.handleVoteButton(event, this.state.submitters[index])}>Vote</button>
+                  <button className="blue float-right ml-4" disabled={!enableClaim} onClick={event => this.handleClaimButton(event, this.state.requestId)}>Claim</button>
+                </TableCell>                
               </TableRow>
           </React.Fragment>
         );
@@ -194,9 +222,8 @@ class RequestSolution extends Component {
               <TableRow>
                 <TableCell style={tableColStyles}>Submitter</TableCell>
                 <TableCell style={tableColStyles} align="right">Solution URI</TableCell>
-                <TableCell style={tableColStyles} align="right">
-                  {this.state.showVoteButton===true ? "Vote" : "Total Votes"}
-                </TableCell>
+                <TableCell style={tableColStyles} align="right"># of Votes</TableCell>
+                <TableCell style={tableColStyles} align="right"></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

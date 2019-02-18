@@ -11,8 +11,9 @@ import HelperFunctions from '../HelperFunctions'
 
 //inline styles
 const styles = {
-    backgroundColor: 'white',
-    padding: 20
+    padding: 20,
+    boxShadow:'none',
+    borderRadius:0,
 }
 
 const dialogStyles = {
@@ -141,14 +142,31 @@ class WithdrawToken extends Component {
 
     return (
       <div>
-        <Paper style={styles} elevation={5}>
-          <p><strong>Withdraw Token from RFAI Escrow Contract </strong></p>
+        <Paper style={styles} elevation={0} className="singularity-content">
+          <p>Withdraw Token from RFAI Escrow Contract </p>
 
           <form className="pure-form pure-form-stacked">
-            <p>Token Balance: {tknBalance} AGI</p>
-            <p>Balance in Escrow: {escrowBalance} AGI</p> <br/>
-            <input name="withdrawAmount" type="number" placeholder="Tokens to Withdraw:" min={0} value={this.state.withdrawAmount} onChange={this.handleAmountInputChange} /><br/><br/><br/>
-            <Button type="Button" variant="contained" onClick={this.handleWithdrawButton}>Withdraw</Button>
+          <div class="row">
+            <div class="col-6">
+                <div class="singularity-token-counter">
+                    <p>Token Balance: <span>{tknBalance} AGI</span></p>
+                </div>            
+            </div>
+            <div class="col-6">
+                <div class="singularity-token-counter">
+                    <p>Balance in Escrow: <span>{escrowBalance} AGI</span></p>
+                </div>              
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+                <div class="spacer"></div>
+                <label>Tokens to Withdraw:</label> <div class="clearfix"></div>            
+                <input className="singularity-input" name="withdrawAmount" type="number" placeholder="tokens" autoComplete='off' min={0} value={this.state.withdrawAmount} onChange={this.handleAmountInputChange} />            
+            </div>
+          </div>
+            
+            <Button className="singularity-button high-margin singularity-button-blue" type="Button" variant="contained" onClick={this.handleWithdrawButton}>Withdraw</Button>
           </form>
           {/* <p>Tokens to deposit: {depositGroomed} </p> */}
       </Paper>

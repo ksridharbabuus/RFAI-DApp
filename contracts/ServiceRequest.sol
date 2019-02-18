@@ -272,9 +272,6 @@ contract ServiceRequest {
         // Change the status of the Request to Rejected
         req.status = RequestStatus.Rejected;
 
-        // Stake Members to needs to claim by themselves
-        //settleFundsAndChangeStatus(requestId, RequestStatus.Rejected);
-        
         emit RejectRequest(requestId, msg.sender);
 
         return true;
@@ -293,26 +290,7 @@ contract ServiceRequest {
         // Change the status of the Request to Closed
         req.status = RequestStatus.Closed;
         
-        // Stake Members to needs to claim by themselves
-        //settleFundsAndChangeStatus(requestId, RequestStatus.Closed);
-        
         emit CloseRequest(requestId, msg.sender);
-    }
-    
-    // TBD: Function to be deleted as Claim will be done explicitly
-    function settleFundsAndChangeStatus(uint256 requestId, RequestStatus finalStatus) internal returns(bool) {
-        
-        Request storage req = requests[requestId];
-        uint256 amount;
-        for(uint256 i=0; i<req.stakeMembers.length; i++) {
-            amount = req.funds[req.stakeMembers[i]];
-            req.funds[req.stakeMembers[i]] = req.funds[req.stakeMembers[i]].sub(amount);
-            balances[req.stakeMembers[i]] = balances[req.stakeMembers[i]].add(amount);
-        }
-        req.totalFund = 0;
-        req.status = finalStatus;
-        
-        return true;
     }
     
     function createOrUpdateSolutionProposal(uint256 requestId, bytes solutionDocURI)
@@ -467,19 +445,6 @@ contract ServiceRequest {
     function getFoundationMemberKeys() public view returns (address[]) {
         return memberKeys;
     }
-
-    // TBD: Following functions to be deleted as we have detailed functions to get the values
-    /*
-    function getStakeMembers(uint256 requestId) public view returns (address[]) {
-        Request memory req = requests[requestId];
-        return req.stakeMembers;
-    }
-
-    function getSolutionSubmitters(uint256 requestId) public view returns (address[]) {
-        Request memory req = requests[requestId];
-        return req.submitters;
-    }
-    */
 
     function getServiceRequestById(uint256 reqId) public view 
     returns (bool found, uint256 requestId, address requester, uint256 totalFund, bytes documentURI, uint256 expiration, uint256 endSubmission, uint256 endEvaluation, RequestStatus status, address[] stakeMembers, address[] submitters) 

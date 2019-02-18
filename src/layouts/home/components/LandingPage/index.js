@@ -16,8 +16,9 @@ import Administration from '../../components/Administration'
 
 const dialogStyles = {
     style: {
-      backgroundColor: 'white',
-      padding: 5
+      backgroundColor: 'transparent',
+      padding: 5,
+        boxShadow:'none',
     }
   }
 

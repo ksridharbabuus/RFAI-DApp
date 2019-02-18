@@ -6,14 +6,14 @@ import web3 from 'web3'
 //components
 import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
-//import InvalidAddressModal from '../InvalidAddressModal'
 import Dialog from '@material-ui/core/Dialog'
 import HelperFunctions from '../HelperFunctions'
 
 //inline styles
 const styles = {
-    backgroundColor: 'white',
-    padding: 20
+    padding: 20,
+    boxShadow:'none',
+    borderRadius:0,
 }
 
 const dialogStyles = {
@@ -167,15 +167,36 @@ class DepositToken extends Component {
 
     return (
       <div>
-        <Paper style={styles} elevation={5}>
-          <p><strong>Deposit Token to RFAI Escrow Contract </strong></p>
+        <Paper style={styles} elevation={0} className="singularity-content">
+          <p>Deposit Token to RFAI Escrow Contract </p>
 
           <form className="pure-form pure-form-stacked">
-            <p>Token Balance: {tknBalance} AGI</p>
-            <p>Balance in Escrow: {escrowBalance} AGI</p>
-            <p>Token Allowance: {tknAllowance} AGI</p><br/>
-            <input name="depositAmount" type="number" placeholder="Tokens to Deposit:" min={0} value={this.state.depositAmount} onChange={this.handleAmountInputChange} /><br/><br/><br/>
-            <Button type="Button" variant="contained" onClick={this.handleDepositButton}>Deposit</Button>
+          <div class="row">
+            <div class="col-4">
+                <div class="singularity-token-counter">
+                    <p>Token Balance: <span>{tknBalance} AGI</span></p>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="singularity-token-counter">
+                    <p>Balance in Escrow: <span>{escrowBalance} AGI</span></p>
+                </div>            
+            </div>
+            <div class="col-4">
+                <div class="singularity-token-counter">
+                    <p>Token Allowance: <span>{tknAllowance} AGI</span></p>
+                </div>                        
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+                <div class="spacer"></div>
+                <label>Tokens to Deposit:</label> <div class="clearfix"></div>
+                <input className="singularity-input" name="depositAmount" type="number" placeholder="tokens" autoComplete='off' min={0} value={this.state.depositAmount} onChange={this.handleAmountInputChange} />
+            </div>
+          </div>
+            
+            <Button className="singularity-button high-margin singularity-button-blue" type="Button" variant="contained" onClick={this.handleDepositButton}>Deposit</Button>
           </form>
       </Paper>
 

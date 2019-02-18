@@ -20,5 +20,11 @@ export default class HelperFunctions {
     var weiValBN = new BN(Math.round(val * factor))
     return weiValBN.toString()
   }
+
+  toShortAddress(address) {
+    const addressLength = address.length;
+    var shortAddress = address.slice(0,6) + "..." + address.slice(addressLength-4,addressLength)
+    return shortAddress;
+  }
   
 }

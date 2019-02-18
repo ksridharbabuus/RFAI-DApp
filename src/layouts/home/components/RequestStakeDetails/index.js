@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { drizzleConnect } from 'drizzle-react'
 import PropTypes from 'prop-types'
-import web3 from 'web3'
 
 // Request Table Functionality
 import Table from '@material-ui/core/Table';
@@ -24,10 +23,8 @@ const rootStyles = {
 }
 
 const tableStyles = {
-    minWidth: 450,
+    minWidth: 480,
 }
-
-//const BN = web3.utils.BN
 
 class RequestStakeDetails extends Component {
   constructor(props, context) {
@@ -36,6 +33,8 @@ class RequestStakeDetails extends Component {
     this.contracts = context.drizzle.contracts
     this.context = context
     this.helperFunctions = new HelperFunctions();
+
+    this.handleClaimBackButton = this.handleClaimBackButton.bind(this)
 
     this.state = {
       requestId: this.props.requestId,
@@ -56,6 +55,8 @@ class RequestStakeDetails extends Component {
       alertText: ''
     }
 
+    this.setBlockNumber();
+
     // bool found, uint256 requestId, address requester, uint256 totalFund, bytes documentURI, uint256 expiration, uint256 endSubmission, uint256 endEvaluation, RequestStatus status, address[] stakeMembers, address[] submitters
   }
 
@@ -70,7 +71,15 @@ class RequestStakeDetails extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (this.props.ServiceRequest !== prevProps.ServiceRequest || prevState.dataKeyRequestId !== this.state.dataKeyRequestId) {
       this.setRequestDetails(this.props.ServiceRequest)
+      this.setBlockNumber();
     }
+  }
+
+  setBlockNumber() {
+    // Update the Block Number
+    this.context.drizzle.web3.eth.getBlockNumber((err, blockNumber) => {
+      this.setState({blockNumber});
+    });
   }
 
   setRequestDetails(contract) {
@@ -103,6 +112,15 @@ class RequestStakeDetails extends Component {
     }
   }
 
+  handleClaimBackButton(event, requestId) {
+
+    const stackId = this.contracts.ServiceRequest.methods["requestClaimBack"].cacheSend(requestId, {from: this.props.accounts[0]})
+      if (this.props.transactionStack[stackId]) {
+        const txHash = this.props.trasnactionStack[stackId]
+        console.log("txHash - " + txHash);
+      }
+  }
+
   createRow(staker, index) {
 
     if (this.props.ServiceRequest.getStakeById[staker] !== undefined && staker !== null) {
@@ -111,11 +129,23 @@ class RequestStakeDetails extends Component {
       // bool found, uint256 stake
       if(s.found === true)
       {
+        var enableClaimBack = false;
+
+        // if Closed/Rejected/Approved -> Expired
+        if(this.state.stakeMembers[index] === this.props.accounts[0] && s.stake > 0 
+          && ( this.state.status === "2" || this.state.status === "4" || (this.state.status === "1" && parseInt(this.state.expiration,10) < parseInt(this.state.blockNumber,10)))
+          ) {
+            enableClaimBack = true;
+          }
+
         return (
           <React.Fragment>
             <TableRow key={index}> 
-                <TableCell component="th" scope="row">{this.state.stakeMembers[index]}</TableCell>
+                <TableCell component="th" title={this.state.stakeMembers[index]} scope="row">{this.helperFunctions.toShortAddress(this.state.stakeMembers[index])}</TableCell>
                 <TableCell align="right">{this.helperFunctions.fromWei(s.stake)}</TableCell>
+                <TableCell align="right">
+                  <button className="blue float-right ml-4" disabled={!enableClaimBack} onClick={event => this.handleClaimBackButton(event, this.state.requestId)}>Claim Back</button>
+                </TableCell>
               </TableRow>
           </React.Fragment>
         );
@@ -126,13 +156,14 @@ class RequestStakeDetails extends Component {
   render() {
  
     return (
-      <div>
+      <div class="singularity-dialog-table-class">
         <Paper styles={rootStyles}>
-          <Table style={tableStyles}>
+          <Table style={tableStyles} elevation={0}>
             <TableHead>
               <TableRow>
                 <TableCell>Staker</TableCell>
                 <TableCell align="right">Amount (AGI)</TableCell>
+                <TableCell></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
